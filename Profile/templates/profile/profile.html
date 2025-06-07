@@ -45,6 +45,11 @@
                         </div>
                     </div>
                 </div>
+                <!-- Блок для рендера игр пользователя -->
+                <div class="user-games-section mt-4">
+                    <h2 class="user-games-title">Мои игры</h2>
+                    <div id="userGamesList" class="user-games-list"></div>
+                </div>
             </div>
         </div>
 
@@ -352,6 +357,88 @@
         animation: fadeInUp 0.6s ease-out;
     }
 
+    .user-games-section {
+        margin-top: 2rem;
+    }
+    .user-games-title {
+        color: var(--text-color);
+        font-size: 1.3rem;
+        margin-bottom: 1rem;
+        font-weight: 600;
+        letter-spacing: 1px;
+    }
+    .user-games-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.5rem;
+    }
+    .user-game-card {
+        background: rgba(255,255,255,0.05);
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        padding: 1.2rem 1rem 1rem 1rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        transition: box-shadow 0.2s;
+        position: relative;
+        min-height: 260px;
+    }
+    .user-game-card:hover {
+        box-shadow: 0 4px 16px rgba(0,200,255,0.15);
+    }
+    .user-game-img {
+        width: 120px;
+        height: 67px;
+        object-fit: cover;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    }
+    .user-game-title {
+        color: var(--text-color);
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin: 0 0 0.5rem 0;
+        text-align: center;
+        word-break: break-word;
+    }
+    
+    .clickable-game-title {
+        cursor: pointer;
+        transition: color 0.3s ease;
+    }
+    
+    .clickable-game-title:hover {
+        color: var(--accent-color);
+    }
+    .user-game-status {
+        font-size: 0.95rem;
+        font-weight: 500;
+        margin-bottom: 0.3rem;
+        padding: 0.2rem 0.7rem;
+        border-radius: 8px;
+        display: inline-block;
+        background: var(--accent-color);
+        color: #fff;
+        letter-spacing: 0.5px;
+    }
+    .user-game-status.completed {
+        background: #2ecc71;
+    }
+    .user-game-status.playing {
+        background: #f1c40f;
+        color: #222;
+    }
+    .user-game-status.plan {
+        background: #4a4a4a;
+    }
+    .user-game-rating {
+        color: #b8b8b8;
+        font-size: 0.95rem;
+        margin-top: 0.2rem;
+    }
+
     /* Адаптивность */
     @media (max-width: 1200px) {
         .dashboard-layout {
@@ -389,6 +476,56 @@
 <script>
 let searchTimeout;
 
+function getJWTToken() {
+    return localStorage.getItem('jwt_token');
+}
+
+const statusMap = {
+    'Планирую пройти': {text: 'Планирую пройти', class: 'plan'},
+    'Прохожу': {text: 'Прохожу', class: 'playing'},
+    'Пройдена': {text: 'Пройдена', class: 'completed'},
+};
+
+function renderUserGames(games) {
+    const container = document.getElementById('userGamesList');
+    container.innerHTML = '';
+    if (!games.length) {
+        container.innerHTML = '<p style="color: #b8b8b8;">У вас пока нет игр в коллекции.</p>';
+        return;
+    }
+    games.forEach(obj => {
+        const game = obj.game;
+        const status = statusMap[obj.status] || {text: obj.status, class: ''};
+        const div = document.createElement('div');
+        div.className = 'user-game-card';
+        div.innerHTML = `
+            <img class="user-game-img" src="${game.logo}" alt="${game.name}">
+            <div class="user-game-title clickable-game-title" data-slug="${game.slug}">${game.name}</div>
+            <div class="user-game-status ${status.class}">${status.text}</div>
+            ${obj.user_raiting ? `<div class="user-game-rating">Оценка: ${obj.user_raiting}</div>` : ''}
+        `;
+        container.appendChild(div);
+    });
+    
+    // Добавляем обработчики кликов для названий игр
+    container.querySelectorAll('.clickable-game-title').forEach(title => {
+        title.addEventListener('click', function() {
+            const slug = this.getAttribute('data-slug');
+            navigateToGamePage(slug);
+        });
+    });
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+    // Сохраняем access токен в localStorage, если он передан из views
+    {% if access_token %}
+        localStorage.setItem('jwt_token', '{{ access_token }}');
+    {% endif %}
+    
+    const userGames = {{ user_games_json|safe }};
+    renderUserGames(userGames);
+});
+
 document.getElementById('gameSearch').addEventListener('input', function(e) {
     clearTimeout(searchTimeout);
     const searchQuery = e.target.value.trim();
@@ -413,12 +550,15 @@ document.addEventListener('click', function(e) {
 });
 
 function fetchGames(query) {
-    fetch(`/api/gameList/${encodeURIComponent(query)}/`)
+    fetch(`/api/gameList/${encodeURIComponent(query)}/`, {
+        headers: {
+            'Authorization': 'Bearer ' + getJWTToken()
+        }
+    })
         .then(response => response.json())
         .then(games => {
             const resultsContainer = document.getElementById('searchResults');
             resultsContainer.innerHTML = '';
-            
             games.forEach(game => {
                 const gameElement = createGameElement(game);
                 resultsContainer.appendChild(gameElement);
@@ -430,31 +570,33 @@ function fetchGames(query) {
 function createGameElement(game) {
     const gameItem = document.createElement('div');
     gameItem.className = 'game-item';
-    
     const image = document.createElement('img');
     image.className = 'game-image';
     image.src = game.background_image;
     image.alt = game.name;
-    
     const info = document.createElement('div');
     info.className = 'game-info';
-    
     const titleRow = document.createElement('div');
     titleRow.className = 'd-flex justify-content-between align-items-center';
-    
     const title = document.createElement('h3');
-    title.className = 'game-title';
+    title.className = 'game-title clickable-game-title';
     title.textContent = game.name;
-    
+    title.style.cursor = 'pointer';
+    title.addEventListener('click', function(e) {
+        e.stopPropagation();
+        navigateToGamePage(game.slug);
+    });
     const addButton = document.createElement('button');
     addButton.className = 'add-game-btn';
     addButton.innerHTML = '<i class="fas fa-plus"></i>';
     addButton.title = 'Добавить в коллекцию';
-    
+    addButton.onclick = function(e) {
+        e.stopPropagation();
+        addGameToProfile(game.slug);
+    };
     const meta = document.createElement('div');
     meta.className = 'game-meta';
     meta.textContent = game.genres.map(g => g.name).join(', ');
-    
     const score = document.createElement('span');
     score.className = 'metacritic-score ms-2';
     if (game.metacritic) {
@@ -466,34 +608,78 @@ function createGameElement(game) {
         score.style.backgroundColor = '#4a4a4a';
         score.style.color = '#b8b8b8';
     }
-    
     titleRow.appendChild(title);
     titleRow.appendChild(addButton);
     info.appendChild(titleRow);
     info.appendChild(meta);
     meta.appendChild(score);
-    
     gameItem.appendChild(image);
     gameItem.appendChild(info);
-    
-    gameItem.addEventListener('click', (e) => {
-        if (!e.target.closest('.add-game-btn')) {
-            console.log('Redirect to game page:', game.slug);
-        }
-    });
-    
-    addButton.addEventListener('click', (e) => {
-        e.stopPropagation();
-        console.log('Add game to profile:', game.slug);
-    });
-    
     return gameItem;
+}
+
+function addGameToProfile(slug) {
+    fetch(`/api/game/${encodeURIComponent(slug)}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + getJWTToken()
+        },
+        body: JSON.stringify({addGame: true})
+    })
+    .then(response => response.json())
+    .then(data => {
+        fetchUserGames();
+    })
+    .catch(error => console.error('Ошибка при добавлении игры:', error));
+}
+
+function fetchUserGames() {
+    fetch('/api/user/games/', {
+        headers: {
+            'Authorization': 'Bearer ' + getJWTToken()
+        }
+    })
+    .then(response => response.json())
+    .then(games => {
+        renderUserGames(games);
+    })
+    .catch(error => console.error('Ошибка при получении игр пользователя:', error));
 }
 
 function getMetacriticColor(score) {
     if (score >= 75) return '#2ecc71';
     if (score >= 50) return '#f1c40f';
     return '#e74c3c';
+}
+
+function navigateToGamePage(slug) {
+    // Делаем POST запрос с addGame: false для получения информации об игре
+    fetch(`/api/game/${encodeURIComponent(slug)}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + getJWTToken()
+        },
+        body: JSON.stringify({addGame: false})
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            // Успешно получили информацию об игре - редирект на страницу игры
+            const gameSlug = data.game ? data.game.slug : slug;
+            window.location.href = `/profile/game/${encodeURIComponent(gameSlug)}/`;
+        } else {
+            console.error('Ошибка при получении информации об игре:', data);
+            // Даже при ошибке попробуем редирект
+            window.location.href = `/profile/game/${encodeURIComponent(slug)}/`;
+        }
+    })
+    .catch(error => {
+        console.error('Ошибка при запросе к API:', error);
+        // При ошибке сети также делаем редирект
+        window.location.href = `/profile/game/${encodeURIComponent(slug)}/`;
+    });
 }
 </script>
 {% endblock %} 

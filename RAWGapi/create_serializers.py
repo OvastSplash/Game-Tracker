@@ -47,6 +47,7 @@ class GameSerializer(serializers.ModelSerializer):
     developers = DeveloperModelSerializer(many=True, allow_null=True)
     slug = serializers.SlugField(required=False)
     background_image = serializers.URLField(required=False, source='logo')
+    released = serializers.CharField(source='release_date')
     
     class Meta:
         model = Game

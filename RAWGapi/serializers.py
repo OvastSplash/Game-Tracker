@@ -16,14 +16,10 @@ class StoreSerializer(serializers.Serializer):
 class GenreSerializer(serializers.Serializer):
     name = serializers.CharField()
 
-class DeveloperSerializer(serializers.Serializer):
-    name = serializers.CharField()
-
 class GameListSerializer(serializers.Serializer):
     name = serializers.CharField()
     released = serializers.CharField(allow_null=True)
     metacritic = serializers.IntegerField(allow_null=True)
-    developers = DeveloperSerializer(many=True, allow_null=True)
     background_image = serializers.URLField(allow_null=True)
     platforms = PlatformSerializer(many=True, allow_null=True)
     stores = StoreSerializer(many=True, allow_null=True)

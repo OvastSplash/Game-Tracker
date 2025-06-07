@@ -4,5 +4,6 @@ from . import views
 app_name = 'profile'
 
 urlpatterns = [
-    path('', views.profile, name='profile'),
+        path('', views.Profile.as_view(), name='profile'),
+        path('game/<str:GameSlug>/', views.Game.as_view(), name='game'),
 ] 

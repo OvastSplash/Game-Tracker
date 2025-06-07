@@ -3,24 +3,32 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_201_CREATED
 from .serializers import GameListSerializer
 from .create_serializers import GameSerializer
+from .object_to_json_serializers import UserGameSerializer
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import get_user_model
-from .models import Game
+from .models import Game, UserGame
 from GameTracker.settings import RAWG_API_TOKEN
 import requests
 
 User = get_user_model()
 
 class GameList(APIView):
+    """
+    Класс для поиска игр через RAWG API
+    GET запрос возвращает топ-5 игр, отсортированных по рейтингу Metacritic
+    """
     def get(self, request, GameName):
+        # Формируем URL для поиска игр, ограничиваем 5 результатами
         url = f"https://api.rawg.io/api/games?search={GameName}&key={RAWG_API_TOKEN}&page_size=5"
 
         response = requests.get(url)
         data = response.json()
         games = data.get('results', [])
         
+        # Сортируем игры по рейтингу Metacritic (если нет рейтинга, считаем его за 0)
         sorted_games = sorted(games, key=lambda x: x.get('metacritic', 0) or 0, reverse=True)
+        print(sorted_games)
         
         serializer = GameListSerializer(data=sorted_games, many=True)
         if serializer.is_valid():
@@ -29,11 +37,17 @@ class GameList(APIView):
         return Response(serializer.errors, status=400)
     
 class GetGame(APIView):
+    """
+    Класс для работы с конкретной игрой
+    Требует аутентификации через JWT
+    GET: получение информации об игре
+    POST: добавление игры в коллекцию пользователя
+    """
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     
-    # Get Game
     def get(self, request, GameName):
+        """Получение детальной информации об игре из RAWG API"""
         url = f"https://api.rawg.io/api/games/{GameName}?key={RAWG_API_TOKEN}"
         response = requests.get(url)
         data = response.json()
@@ -44,40 +58,69 @@ class GetGame(APIView):
         
         return Response(serializer.errors, status=400)
     
-    # Create Game
     def post(self, request, GameName):
+        """
+        Добавление игры в коллекцию пользователя
+        1. Проверяет, существует ли игра в базе
+        2. Если игра существует:
+           - проверяет, нет ли её уже в коллекции пользователя
+           - если нет, добавляет связь пользователь-игра
+        3. Если игры нет:
+           - получает данные из RAWG API
+           - создает новую игру
+           - добавляет связь пользователь-игра
+        """
         user_id = request.user.id
         print("User ID:", user_id)
         user = User.objects.get(id=user_id)
         print("User:", user)
+        
+        # Проверяем, существует ли игра в нашей базе
         try:
             game = Game.objects.get(slug=GameName)
         except Game.DoesNotExist:
             game = None
         
         if game:
-            if user.games.filter(slug=GameName).exists():
-                return Response({
-                    "status": "error",
-                    "message": "Game already exists in your collection",
-                    "code": "game_exists",
-                    "game": {
-                        "slug": game.slug,
-                        "name": game.name
-                    }
-                }, status=400)
+            addGame = request.data.get('addGame', True)
+            
+            if addGame:
+                # Проверяем, есть ли уже эта игра у пользователя
+                if UserGame.objects.filter(user=user, game=game).exists():
+                    return Response({
+                        "status": "error",
+                        "message": "Game already exists in your collection",
+                        "code": "game_exists",
+                        "game": {
+                            "slug": game.slug,
+                            "name": game.name
+                        }
+                    }, status=400)
+                else:
+                    # Добавляем игру в коллекцию пользователя
+                    UserGame.objects.create(user=user, game=game)
+                    return Response({
+                        "status": "success",
+                        "message": "Game successfully added to your collection",
+                        "code": "game_added",
+                        "game": {
+                            "slug": game.slug,
+                            "name": game.name
+                        }
+                    }, status=201)
             else:
-                user.games.add(game)
+                # Просто возвращаем информацию об игре без добавления
                 return Response({
                     "status": "success",
-                    "message": "Game successfully added to your collection",
-                    "code": "game_added",
+                    "message": "Game information retrieved successfully",
+                    "code": "game_found",
                     "game": {
                         "slug": game.slug,
                         "name": game.name
                     }
-                }, status=201)
+                }, status=200)
 
+        # Если игры нет в базе, получаем её из RAWG API
         url = f"https://api.rawg.io/api/games/{GameName}?key={RAWG_API_TOKEN}"
         print(request.user)
         response = requests.get(url)
@@ -85,17 +128,33 @@ class GetGame(APIView):
             data = response.json()
             serializer = GameSerializer(data=data)
             if serializer.is_valid():
+                # Создаем новую игру и добавляем её пользователю
                 game = serializer.save()
-                user.games.add(game)
-                return Response({
-                    "status": "success",
-                    "message": "Game successfully added to your collection",
-                    "code": "game_added",
-                    "game": {
-                        "slug": game.slug,
-                        "name": game.name
-                    }
-                }, status=201)
+                
+                addGame = request.data.get('addGame', True)
+                if addGame:
+                    UserGame.objects.create(user=user, game=game)
+
+                    return Response({
+                        "status": "success",
+                        "message": "Game successfully added to your collection",
+                        "code": "game_added",
+                        "game": {
+                            "slug": game.slug,
+                            "name": game.name
+                        }
+                    }, status=201)
+                    
+                else:
+                    return Response({
+                        "status": "success",
+                        "message": "Game successfully has been created",
+                        "code": "game_created",
+                        "game": {
+                            "slug": game.slug,
+                            "name": game.name
+                        }
+                    }, status=201)
         
         return Response({
             "status": "error",
@@ -103,3 +162,19 @@ class GetGame(APIView):
             "code": "creation_failed",
             "errors": serializer.errors if 'serializer' in locals() else {"detail": "Failed to fetch game data"}
         }, status=400)
+        
+class GetUserGames(APIView):
+    """
+    Класс для получения списка игр пользователя
+    Требует аутентификации через JWT
+    GET: возвращает все игры в коллекции пользователя
+    """
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        """Получение списка всех игр пользователя с их статусами и рейтингами"""
+        user_id = request.user.id
+        games = UserGame.objects.filter(user=user_id)
+        serializer = UserGameSerializer(games, many=True)
+        return Response(serializer.data, status=200)

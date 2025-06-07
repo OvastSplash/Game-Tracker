@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block title %}Ошибка - GameTracker{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --primary-dark: #1a1a1a;
+        --secondary-dark: #2d2d2d;
+        --accent-color: #00c8ff;
+        --text-color: #ffffff;
+        --text-secondary: #b8b8b8;
+        --error-color: #e74c3c;
+    }
+    
+    body {
+        background: linear-gradient(135deg, var(--primary-dark) 0%, #0f1419 100%);
+        color: var(--text-color);
+        font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+    }
+    
+    .error-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 2rem;
+        text-align: center;
+        margin-top: 10vh;
+    }
+    
+    .error-card {
+        background: var(--secondary-dark);
+        border-radius: 20px;
+        padding: 3rem 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+    
+    .error-icon {
+        font-size: 4rem;
+        color: var(--error-color);
+        margin-bottom: 1.5rem;
+    }
+    
+    .error-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--text-color);
+    }
+    
+    .error-message {
+        font-size: 1.1rem;
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+    
+    .error-details {
+        background: rgba(231, 76, 60, 0.1);
+        border: 1px solid var(--error-color);
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 2rem;
+        color: var(--error-color);
+        font-size: 0.9rem;
+    }
+    
+    .back-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: var(--accent-color);
+        color: white;
+        text-decoration: none;
+        padding: 0.75rem 2rem;
+        border-radius: 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .back-button:hover {
+        background: #00a0ff;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 200, 255, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+</style>
+
+<div class="error-container">
+    <div class="error-card">
+        <i class="fas fa-exclamation-triangle error-icon"></i>
+        <h1 class="error-title">Упс! Что-то пошло не так</h1>
+        <p class="error-message">
+            Не удалось загрузить информацию об игре. Возможно, игра не найдена или произошла ошибка при получении данных.
+        </p>
+        
+        {% if error %}
+        <div class="error-details">
+            <strong>Детали ошибки:</strong> {{ error }}
+            {% if game_slug %}
+            <br><strong>Slug игры:</strong> {{ game_slug }}
+            {% endif %}
+        </div>
+        {% endif %}
+        
+        <a href="{% url 'profile:profile' %}" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            Вернуться в профиль
+        </a>
+    </div>
+</div>
+
+{% endblock %} 
