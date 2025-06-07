@@ -1,0 +1,499 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="dashboard-layout">
+        <!-- Основной контент (левая часть) -->
+        <div class="main-content">
+            <div class="content-wrapper">
+                <div class="profile-header">
+                    <div class="profile-avatar">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <h1 class="profile-title">{{ user.username }}</h1>
+                </div>
+                
+                <!-- Здесь будет основной контент профиля -->
+                <div class="profile-stats">
+                    <div class="stat-card">
+                        <i class="fas fa-gamepad stat-icon"></i>
+                        <div class="stat-info">
+                            <h3>Игр в коллекции</h3>
+                            <p class="stat-value">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-check-circle stat-icon"></i>
+                        <div class="stat-info">
+                            <h3>Пройдено игр</h3>
+                            <p class="stat-value">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-hourglass-half stat-icon"></i>
+                        <div class="stat-info">
+                            <h3>В процессе</h3>
+                            <p class="stat-value">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-list-check stat-icon"></i>
+                        <div class="stat-info">
+                            <h3>Планируется пройти</h3>
+                            <p class="stat-value">0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Поисковая система (правая часть) -->
+        <div class="search-sidebar">
+            <div class="content-wrapper">
+                <h2 class="search-title">
+                    <i class="fas fa-search"></i>
+                    Поиск игр
+                </h2>
+                
+                <div class="search-container position-relative">
+                    <div class="search-wrapper">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" 
+                               id="gameSearch" 
+                               class="search-input" 
+                               placeholder="Поиск игр..."
+                               autocomplete="off">
+                    </div>
+                    <div id="searchResults" class="search-results">
+                        <!-- Здесь будут отображаться результаты поиска -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --primary-dark: #1a1a1a;
+        --secondary-dark: #2d2d2d;
+        --accent-color: #00c8ff;
+        --text-color: #ffffff;
+        --text-secondary: #b8b8b8;
+        --gradient-start: rgba(26, 26, 26, 0.9);
+        --gradient-end: rgba(45, 45, 45, 0.9);
+    }
+
+    .profile-container {
+        min-height: calc(100vh - 56px);
+        background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end)),
+                    url('{% static "images/background-profile.jpg" %}') center/cover no-repeat;
+        padding: 2rem;
+    }
+
+    .dashboard-layout {
+        display: grid;
+        grid-template-columns: 1fr 350px;
+        gap: 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .content-wrapper {
+        background: rgba(26, 26, 26, 0.95);
+        border-radius: 15px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        padding: 2rem;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        height: 100%;
+    }
+
+    .profile-header {
+        text-align: center;
+        margin-bottom: 2rem;
+        padding-bottom: 2rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .profile-avatar {
+        font-size: 5rem;
+        color: var(--accent-color);
+        margin-bottom: 1rem;
+    }
+
+    .profile-title {
+        color: var(--text-color);
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .profile-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .stat-card {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: transform 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .stat-icon {
+        font-size: 2rem;
+        color: var(--accent-color);
+    }
+
+    .stat-info h3 {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        margin: 0;
+    }
+
+    .stat-value {
+        color: var(--text-color);
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0.25rem 0 0 0;
+    }
+
+    .search-sidebar {
+        position: relative;
+    }
+
+    .search-title {
+        color: var(--text-color);
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .search-title i {
+        color: var(--accent-color);
+    }
+
+    .search-container {
+        width: 100%;
+    }
+
+    .search-wrapper {
+        position: relative;
+        margin-bottom: 1rem;
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-secondary);
+        font-size: 1.2rem;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 1rem 1rem 1rem 3rem;
+        background: var(--secondary-dark);
+        border: 2px solid transparent;
+        border-radius: 10px;
+        color: var(--text-color);
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: var(--accent-color);
+        box-shadow: 0 0 15px rgba(0, 200, 255, 0.2);
+    }
+
+    .search-results {
+        position: absolute;
+        top: calc(100% + 5px);
+        left: 0;
+        right: 0;
+        background: var(--secondary-dark);
+        border-radius: 10px;
+        max-height: 400px;
+        overflow-y: auto;
+        z-index: 1000;
+        display: none;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .game-item {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .game-item:last-child {
+        border-bottom: none;
+    }
+
+    .game-item:hover {
+        background: rgba(0, 200, 255, 0.1);
+    }
+
+    .game-image {
+        width: 80px;
+        height: 45px;
+        object-fit: cover;
+        border-radius: 5px;
+        margin-right: 1rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .game-info {
+        flex-grow: 1;
+        min-width: 0;
+    }
+
+    .game-title {
+        margin: 0;
+        color: var(--text-color);
+        font-size: 0.9rem;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .game-meta {
+        color: var(--text-secondary);
+        font-size: 0.8rem;
+        margin-top: 0.25rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .metacritic-score {
+        display: inline-block;
+        padding: 0.2rem 0.5rem;
+        border-radius: 5px;
+        font-weight: bold;
+        font-size: 0.8rem;
+        min-width: 32px;
+        text-align: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .add-game-btn {
+        background: none;
+        border: none;
+        color: var(--accent-color);
+        padding: 0.5rem;
+        margin-left: 0.5rem;
+        transition: all 0.3s ease;
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .add-game-btn:hover {
+        background: rgba(0, 200, 255, 0.1);
+        transform: scale(1.1);
+    }
+
+    /* Стилизация скроллбара */
+    .search-results::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .search-results::-webkit-scrollbar-track {
+        background: var(--primary-dark);
+        border-radius: 4px;
+    }
+
+    .search-results::-webkit-scrollbar-thumb {
+        background: var(--accent-color);
+        border-radius: 4px;
+    }
+
+    .search-results::-webkit-scrollbar-thumb:hover {
+        background: #00a0ff;
+    }
+
+    /* Анимация появления */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .content-wrapper {
+        animation: fadeInUp 0.6s ease-out;
+    }
+
+    /* Адаптивность */
+    @media (max-width: 1200px) {
+        .dashboard-layout {
+            grid-template-columns: 1fr 300px;
+        }
+    }
+
+    @media (max-width: 991px) {
+        .dashboard-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .search-sidebar {
+            margin-top: 2rem;
+        }
+
+        .profile-container {
+            padding: 1rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .profile-stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 480px) {
+        .profile-stats {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<script>
+let searchTimeout;
+
+document.getElementById('gameSearch').addEventListener('input', function(e) {
+    clearTimeout(searchTimeout);
+    const searchQuery = e.target.value.trim();
+    const resultsContainer = document.getElementById('searchResults');
+    
+    if (searchQuery.length > 0) {
+        resultsContainer.style.display = 'block';
+        searchTimeout = setTimeout(() => {
+            fetchGames(searchQuery);
+        }, 300);
+    } else {
+        resultsContainer.style.display = 'none';
+    }
+});
+
+document.addEventListener('click', function(e) {
+    const searchContainer = document.querySelector('.search-container');
+    const resultsContainer = document.getElementById('searchResults');
+    if (!searchContainer.contains(e.target)) {
+        resultsContainer.style.display = 'none';
+    }
+});
+
+function fetchGames(query) {
+    fetch(`/api/gameList/${encodeURIComponent(query)}/`)
+        .then(response => response.json())
+        .then(games => {
+            const resultsContainer = document.getElementById('searchResults');
+            resultsContainer.innerHTML = '';
+            
+            games.forEach(game => {
+                const gameElement = createGameElement(game);
+                resultsContainer.appendChild(gameElement);
+            });
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+function createGameElement(game) {
+    const gameItem = document.createElement('div');
+    gameItem.className = 'game-item';
+    
+    const image = document.createElement('img');
+    image.className = 'game-image';
+    image.src = game.background_image;
+    image.alt = game.name;
+    
+    const info = document.createElement('div');
+    info.className = 'game-info';
+    
+    const titleRow = document.createElement('div');
+    titleRow.className = 'd-flex justify-content-between align-items-center';
+    
+    const title = document.createElement('h3');
+    title.className = 'game-title';
+    title.textContent = game.name;
+    
+    const addButton = document.createElement('button');
+    addButton.className = 'add-game-btn';
+    addButton.innerHTML = '<i class="fas fa-plus"></i>';
+    addButton.title = 'Добавить в коллекцию';
+    
+    const meta = document.createElement('div');
+    meta.className = 'game-meta';
+    meta.textContent = game.genres.map(g => g.name).join(', ');
+    
+    const score = document.createElement('span');
+    score.className = 'metacritic-score ms-2';
+    if (game.metacritic) {
+        score.textContent = game.metacritic;
+        score.style.backgroundColor = getMetacriticColor(game.metacritic);
+        score.style.color = 'white';
+    } else {
+        score.textContent = 'N/A';
+        score.style.backgroundColor = '#4a4a4a';
+        score.style.color = '#b8b8b8';
+    }
+    
+    titleRow.appendChild(title);
+    titleRow.appendChild(addButton);
+    info.appendChild(titleRow);
+    info.appendChild(meta);
+    meta.appendChild(score);
+    
+    gameItem.appendChild(image);
+    gameItem.appendChild(info);
+    
+    gameItem.addEventListener('click', (e) => {
+        if (!e.target.closest('.add-game-btn')) {
+            console.log('Redirect to game page:', game.slug);
+        }
+    });
+    
+    addButton.addEventListener('click', (e) => {
+        e.stopPropagation();
+        console.log('Add game to profile:', game.slug);
+    });
+    
+    return gameItem;
+}
+
+function getMetacriticColor(score) {
+    if (score >= 75) return '#2ecc71';
+    if (score >= 50) return '#f1c40f';
+    return '#e74c3c';
+}
+</script>
+{% endblock %} 

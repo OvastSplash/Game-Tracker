@@ -1,0 +1,264 @@
+:root {
+    --primary-color: #7289da;
+    --background-color: #1a1a1a;
+    --secondary-bg: #2c2f33;
+    --text-color: #ffffff;
+    --error-color: #ff4444;
+    --success-color: #43b581;
+    --input-bg: #23272a;
+}
+
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.4)),
+                url('../images/bg-pattern.png');
+    background-size: 200px 200px;
+    opacity: 0.1;
+    z-index: -2;
+    animation: fadeIn 2s ease-in-out;
+}
+
+.background-image {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -3;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0;
+    transition: opacity 2s ease-in-out;
+}
+
+.background-image::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.4));
+    z-index: -2;
+}
+
+.login-bg {
+    background-image: url('../images/login-bg.jpg');
+}
+
+.register-bg {
+    background-image: url('../images/register-bg.jpg');
+}
+
+.registration-container {
+    background-color: rgba(44, 47, 51, 0.95);
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+    width: 100%;
+    max-width: 400px;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.registration-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), #ff73ff);
+    animation: gradientBG 3s ease infinite;
+    background-size: 200% 200%;
+}
+
+.form-title {
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: var(--input-bg);
+    border: 2px solid transparent;
+    border-radius: 5px;
+    color: var(--text-color);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.form-group input:hover {
+    background-color: #2a2e33;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 15px rgba(114, 137, 218, 0.2);
+    background-color: #2a2e33;
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 1rem;
+    background-color: var(--primary-color);
+    color: var(--text-color);
+    border: none;
+    border-radius: 5px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.submit-btn:hover {
+    background-color: #5b6eae;
+    transform: translateY(-2px);
+    animation: buttonGlow 2s infinite;
+}
+
+.submit-btn:active {
+    transform: translateY(0);
+}
+
+.error-message {
+    color: var(--error-color);
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
+
+.optional-field {
+    opacity: 0.8;
+}
+
+.optional-field label::after {
+    content: ' (необязательно)';
+    font-size: 0.8em;
+    opacity: 0.7;
+}
+
+/* Анимация для полей формы */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.form-group {
+    animation: fadeIn 0.5s ease forwards;
+}
+
+.form-group:nth-child(1) { animation-delay: 0.1s; }
+.form-group:nth-child(2) { animation-delay: 0.2s; }
+.form-group:nth-child(3) { animation-delay: 0.3s; }
+.form-group:nth-child(4) { animation-delay: 0.4s; }
+.form-group:nth-child(5) { animation-delay: 0.5s; }
+
+/* Стили для сообщений об ошибках */
+.errorlist {
+    list-style: none;
+    padding: 0;
+    margin: 0.5rem 0;
+    color: var(--error-color);
+    font-size: 0.9rem;
+    animation: fadeIn 0.3s ease;
+}
+
+.errorlist li {
+    padding: 0.5rem;
+    background-color: rgba(255, 68, 68, 0.1);
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+    border-left: 3px solid var(--error-color);
+}
+
+.additional-links {
+    margin-top: 1.5rem;
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--text-color);
+    opacity: 0.8;
+}
+
+.additional-links a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.additional-links a:hover {
+    color: #ff73ff;
+    text-decoration: underline;
+}
+
+/* Анимация для кнопки */
+@keyframes buttonGlow {
+    0% {
+        box-shadow: 0 0 5px var(--primary-color);
+    }
+    50% {
+        box-shadow: 0 0 20px var(--primary-color);
+    }
+    100% {
+        box-shadow: 0 0 5px var(--primary-color);
+    }
+}
+
+/* Анимация для фона */
+@keyframes gradientBG {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+} 
