@@ -133,6 +133,7 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 JWT_SECRET_KEY = 'K8dj3*mN9$pL#vF5@qW2&hX4%tY7!zC1'
+RAWG_API_TOKEN = "d9a8b90eeff74d07905834091352b8c7"
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # Время жизни access токена - 1 час

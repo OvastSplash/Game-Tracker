@@ -7,14 +7,14 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import get_user_model
 from .models import Game
+from GameTracker.settings import RAWG_API_TOKEN
 import requests
 
-API_TOKEN = "d9a8b90eeff74d07905834091352b8c7"
 User = get_user_model()
 
 class GameList(APIView):
     def get(self, request, GameName):
-        url = f"https://api.rawg.io/api/games?search={GameName}&key={API_TOKEN}&page_size=5"
+        url = f"https://api.rawg.io/api/games?search={GameName}&key={RAWG_API_TOKEN}&page_size=5"
 
         response = requests.get(url)
         data = response.json()
@@ -34,7 +34,7 @@ class GetGame(APIView):
     
     # Get Game
     def get(self, request, GameName):
-        url = f"https://api.rawg.io/api/games/{GameName}?key={API_TOKEN}"
+        url = f"https://api.rawg.io/api/games/{GameName}?key={RAWG_API_TOKEN}"
         response = requests.get(url)
         data = response.json()
         print(data)
@@ -78,7 +78,7 @@ class GetGame(APIView):
                     }
                 }, status=201)
 
-        url = f"https://api.rawg.io/api/games/{GameName}?key={API_TOKEN}"
+        url = f"https://api.rawg.io/api/games/{GameName}?key={RAWG_API_TOKEN}"
         print(request.user)
         response = requests.get(url)
         if response.status_code == 200:
