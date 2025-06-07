@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.views.generic import View
 from django.shortcuts import get_object_or_404
-from RAWGapi.models import Game as GameModel
+from RAWGapi.models import Game as GameModel, UserGame
 import json
 import requests
 from django.conf import settings
@@ -25,11 +25,20 @@ class Profile(View):
         access_token = None
         if 'tokens' in request.session:
             access_token = request.session['tokens'].get('access')
+            
+        games_count = UserGame.objects.filter(user=user_id).count()
+        games_ended = UserGame.objects.filter(user=user_id, status='COMPLETED').count()
+        games_in_progress = UserGame.objects.filter(user=user_id, status='PLAYING').count()
+        games_not_started = UserGame.objects.filter(user=user_id, status='PLAN_TO_PLAY').count()
         
         return render(request, 'profile/profile.html', {
             'user': request.user, 
             'user_games_json': json.dumps(games_serialized, ensure_ascii=False),
-            'access_token': access_token
+            'access_token': access_token,
+            'games_count': games_count,
+            'games_ended': games_ended,
+            'games_in_progress': games_in_progress,
+            'games_not_started': games_not_started
         })
 
 @method_decorator(login_required, name="dispatch")        
@@ -56,6 +65,8 @@ class Game(View):
                 'metacritic': game.metacritic,
                 'genres': [{'name': genre.name} for genre in game.genres.all()],
                 'platforms': [{'platform': {'name': platform.name}} for platform in game.platforms.all()],
+                'stores': [{'name': store.name} for store in game.stores.all()],
+                'developers': [{'name': developer.name} for developer in game.developers.all()],
             }
         except GameModel.DoesNotExist:
             # Если игры нет в базе, получаем данные через наш внутренний API
@@ -92,6 +103,8 @@ class Game(View):
                                 'metacritic': game.metacritic,
                                 'genres': [{'name': genre.name} for genre in game.genres.all()],
                                 'platforms': [{'platform': {'name': platform.name}} for platform in game.platforms.all()],
+                                'stores': [{'name': store.name} for store in game.stores.all()],
+                                'developers': [{'name': developer.name} for developer in game.developers.all()],
                             }
                         except GameModel.DoesNotExist:
                             return render(request, 'profile/game_error.html', {
@@ -132,3 +145,11 @@ class Game(View):
             'user_game': user_game,
             'access_token': access_token
         })
+        
+    def post(self, request, GameSlug):
+        access_token = None
+        if 'tokens' in request.session:
+            access_token = request.session['tokens'].get('access')
+            
+        game = get_object_or_404(UserGame.objects.filter(user=request.user).prefetch_related('game'), game__slug=GameSlug)
+        game.delete()

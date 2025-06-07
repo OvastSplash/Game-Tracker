@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Game, Developer, Platform, Store, Genre
+from .models import UserGame
 
 class PlatformDetailSerializer(serializers.Serializer):
     name = serializers.CharField()
@@ -25,3 +25,17 @@ class GameListSerializer(serializers.Serializer):
     stores = StoreSerializer(many=True, allow_null=True)
     genres = GenreSerializer(many=True, allow_null=True)
     slug = serializers.CharField()
+    
+    
+class UpdateStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserGame
+        fields = ['status']
+        
+    def validate_status(self, value):
+        valid_statuses = [status[0] for status in UserGame.STATUS_CHOICES]
+        
+        if value not in valid_statuses:
+            raise serializers.ValidationError(f"Invalid status: {value}")
+        
+        return value

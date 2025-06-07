@@ -6,290 +6,855 @@
 {% block content %}
 <style>
     :root {
-        --primary-dark: #1a1a1a;
-        --secondary-dark: #2d2d2d;
-        --accent-color: #00c8ff;
+        --primary-dark: #0a0a0a;
+        --secondary-dark: #1a1a1a;
+        --accent-color: #00ff88;
+        --accent-secondary: #ff6b35;
+        --accent-purple: #a855f7;
         --text-color: #ffffff;
-        --text-secondary: #b8b8b8;
-        --success-color: #2ecc71;
-        --warning-color: #f1c40f;
-        --error-color: #e74c3c;
+        --text-secondary: #a3a3a3;
+        --text-muted: #6b7280;
+        --background-gradient: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0f1419 100%);
+        --card-gradient: linear-gradient(145deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.08) 100%);
+        --glow-green: 0 0 20px rgba(0, 255, 136, 0.3);
+        --glow-orange: 0 0 20px rgba(255, 107, 53, 0.3);
+        --glow-purple: 0 0 20px rgba(168, 85, 247, 0.3);
     }
     
     body {
-        background: linear-gradient(135deg, var(--primary-dark) 0%, #0f1419 100%);
+        background: var(--background-gradient);
         color: var(--text-color);
-        font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
         margin: 0;
         padding: 0;
         min-height: 100vh;
+        position: relative;
+        overflow-x: hidden;
+    }
+
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+            radial-gradient(circle at 20% 80%, rgba(0, 255, 136, 0.05) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(255, 107, 53, 0.05) 0%, transparent 50%),
+            radial-gradient(circle at 40% 40%, rgba(168, 85, 247, 0.05) 0%, transparent 50%);
+        pointer-events: none;
+        z-index: 0;
     }
     
     .game-container {
-        max-width: 1400px;
+        max-width: 1600px;
         margin: 0 auto;
         padding: 2rem;
+        position: relative;
+        z-index: 1;
     }
     
     .game-header {
         display: grid;
-        grid-template-columns: 300px 1fr;
-        gap: 2rem;
-        margin-bottom: 2rem;
-        background: var(--secondary-dark);
-        border-radius: 20px;
-        padding: 2rem;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        grid-template-columns: 380px 1fr;
+        gap: 3rem;
+        margin-bottom: 3rem;
+        background: var(--card-gradient);
+        border-radius: 24px;
+        padding: 2.5rem;
+        box-shadow: 
+            0 25px 50px rgba(0, 0, 0, 0.4),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(20px);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .game-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, 
+            var(--accent-color) 0%, 
+            var(--accent-secondary) 50%, 
+            var(--accent-purple) 100%);
+        opacity: 0.8;
     }
     
     .game-poster {
         width: 100%;
-        height: 400px;
+        height: 500px;
         object-fit: cover;
-        border-radius: 15px;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+        border-radius: 20px;
+        box-shadow: 
+            0 15px 40px rgba(0, 0, 0, 0.5),
+            0 0 0 1px rgba(255, 255, 255, 0.1);
+        transition: all 0.4s ease;
+        position: relative;
+    }
+
+    .game-poster:hover {
+        transform: scale(1.02);
+        box-shadow: 
+            0 20px 50px rgba(0, 0, 0, 0.6),
+            var(--glow-green);
     }
     
     .game-details {
         display: flex;
         flex-direction: column;
         justify-content: space-between;
+        gap: 2rem;
     }
     
     .game-title {
-        font-size: 2.5rem;
-        font-weight: 700;
-        margin: 0 0 1rem 0;
-        color: var(--text-color);
-        line-height: 1.2;
+        font-size: 3rem;
+        font-weight: 800;
+        margin: 0 0 1.5rem 0;
+        background: linear-gradient(45deg, var(--text-color), rgba(255, 255, 255, 0.8));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        line-height: 1.1;
+        text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        letter-spacing: -0.02em;
     }
     
     .game-meta {
         display: flex;
         flex-wrap: wrap;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
     }
     
     .meta-item {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
-        background: rgba(255, 255, 255, 0.1);
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        font-size: 0.9rem;
+        gap: 0.75rem;
+        background: rgba(255, 255, 255, 0.08);
+        padding: 0.875rem 1.5rem;
+        border-radius: 16px;
+        font-size: 1rem;
+        font-weight: 600;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+    }
+
+    .meta-item:hover {
+        background: rgba(255, 255, 255, 0.12);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 255, 136, 0.15);
     }
     
     .meta-item i {
         color: var(--accent-color);
+        font-size: 1.2rem;
+        filter: drop-shadow(0 0 5px rgba(0, 255, 136, 0.3));
     }
     
     .metacritic-score {
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        font-weight: bold;
-        font-size: 1rem;
-        min-width: 40px;
+        padding: 0.875rem 1.5rem;
+        border-radius: 16px;
+        font-weight: 800;
+        font-size: 1.1rem;
+        min-width: 50px;
         text-align: center;
         color: white;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        box-shadow: 
+            0 4px 15px rgba(0, 0, 0, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2);
     }
     
     .game-actions {
         display: flex;
-        gap: 1rem;
-        margin-top: 1rem;
+        gap: 1.5rem;
+        margin-top: auto;
     }
     
     .action-btn {
-        padding: 0.75rem 2rem;
+        padding: 1rem 2.5rem;
         border: none;
-        border-radius: 25px;
-        font-weight: 600;
-        font-size: 1rem;
+        border-radius: 18px;
+        font-weight: 700;
+        font-size: 1.1rem;
         cursor: pointer;
-        transition: all 0.3s ease;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        position: relative;
+        overflow: hidden;
+        backdrop-filter: blur(10px);
+    }
+
+    .action-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+    }
+
+    .action-btn:hover::before {
+        left: 100%;
     }
     
     .btn-primary {
-        background: var(--accent-color);
+        background: linear-gradient(45deg, var(--accent-color), #00cc66);
         color: white;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 
+            var(--glow-green),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2);
     }
     
     .btn-primary:hover {
-        background: #00a0ff;
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(0, 200, 255, 0.3);
+        background: linear-gradient(45deg, #00cc66, var(--accent-color));
+        transform: translateY(-4px) scale(1.02);
+        box-shadow: 
+            0 15px 40px rgba(0, 255, 136, 0.4),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        border-color: rgba(255, 255, 255, 0.4);
     }
     
     .btn-secondary {
         background: transparent;
-        color: var(--accent-color);
-        border: 2px solid var(--accent-color);
+        color: var(--accent-secondary);
+        border: 2px solid var(--accent-secondary);
+        box-shadow: var(--glow-orange);
     }
     
     .btn-secondary:hover {
-        background: var(--accent-color);
+        background: var(--accent-secondary);
         color: white;
+        transform: translateY(-4px) scale(1.02);
+        box-shadow: 
+            0 15px 40px rgba(255, 107, 53, 0.4),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3);
     }
     
     .game-content {
         display: grid;
         grid-template-columns: 2fr 1fr;
-        gap: 2rem;
+        gap: 3rem;
     }
     
     .game-description {
-        background: var(--secondary-dark);
-        border-radius: 20px;
-        padding: 2rem;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        background: var(--card-gradient);
+        border-radius: 24px;
+        padding: 2.5rem;
+        box-shadow: 
+            0 25px 50px rgba(0, 0, 0, 0.4),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(20px);
     }
     
     .description-title {
-        font-size: 1.5rem;
-        font-weight: 600;
-        margin-bottom: 1rem;
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
         color: var(--text-color);
         display: flex;
         align-items: center;
-        gap: 0.75rem;
+        gap: 1rem;
+        background: linear-gradient(45deg, var(--accent-color), var(--accent-secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
     
     .description-title i {
         color: var(--accent-color);
+        filter: drop-shadow(0 0 8px rgba(0, 255, 136, 0.4));
     }
     
     .description-text {
         color: var(--text-secondary);
         line-height: 1.8;
-        font-size: 1rem;
+        font-size: 1.1rem;
+        font-weight: 500;
     }
     
     .game-info-sidebar {
         display: flex;
         flex-direction: column;
-        gap: 1.5rem;
+        gap: 2rem;
     }
     
     .info-card {
-        background: var(--secondary-dark);
+        background: var(--card-gradient);
         border-radius: 20px;
-        padding: 1.5rem;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        padding: 2rem;
+        box-shadow: 
+            0 15px 35px rgba(0, 0, 0, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(20px);
+        transition: all 0.3s ease;
+    }
+
+    .info-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 
+            0 20px 40px rgba(0, 0, 0, 0.4),
+            var(--glow-green),
+            inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        border-color: rgba(0, 255, 136, 0.2);
     }
     
     .info-card-title {
-        font-size: 1.2rem;
-        font-weight: 600;
-        margin-bottom: 1rem;
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
         color: var(--text-color);
         display: flex;
         align-items: center;
-        gap: 0.75rem;
+        gap: 1rem;
     }
     
     .info-card-title i {
         color: var(--accent-color);
+        font-size: 1.4rem;
+        filter: drop-shadow(0 0 6px rgba(0, 255, 136, 0.3));
     }
     
     .tags-list {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.5rem;
+        gap: 0.75rem;
     }
     
     .tag {
-        background: rgba(0, 200, 255, 0.2);
+        background: linear-gradient(45deg, rgba(0, 255, 136, 0.2), rgba(0, 255, 136, 0.1));
         color: var(--accent-color);
-        padding: 0.4rem 0.8rem;
-        border-radius: 15px;
-        font-size: 0.85rem;
-        font-weight: 500;
+        padding: 0.6rem 1.2rem;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        border: 1px solid rgba(0, 255, 136, 0.2);
+        transition: all 0.3s ease;
+        text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+    }
+
+    .tag:hover {
+        background: linear-gradient(45deg, rgba(0, 255, 136, 0.3), rgba(0, 255, 136, 0.2));
+        transform: scale(1.05);
+        box-shadow: 0 5px 15px rgba(0, 255, 136, 0.2);
     }
     
     .platforms-list {
         display: flex;
         flex-direction: column;
-        gap: 0.5rem;
+        gap: 0.75rem;
     }
     
     .platform-item {
         color: var(--text-secondary);
-        font-size: 0.9rem;
-        padding: 0.5rem 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        font-size: 1rem;
+        font-weight: 500;
+        padding: 0.875rem 1.25rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+
+    .platform-item:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text-color);
+        transform: translateX(5px);
     }
     
     .platform-item:last-child {
         border-bottom: none;
     }
     
+    .stores-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .store-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        color: var(--text-secondary);
+        font-size: 1rem;
+        font-weight: 500;
+        padding: 1rem 1.5rem;
+        background: rgba(0, 255, 136, 0.05);
+        border-radius: 12px;
+        border-left: 3px solid var(--accent-color);
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+    }
+    
+    .store-item:hover {
+        background: rgba(0, 255, 136, 0.1);
+        transform: translateX(8px) scale(1.02);
+        color: var(--text-color);
+        box-shadow: 0 8px 25px rgba(0, 255, 136, 0.15);
+    }
+    
+    .store-item i {
+        color: var(--accent-color);
+        font-size: 1.2rem;
+        filter: drop-shadow(0 0 5px rgba(0, 255, 136, 0.3));
+    }
+    
+    .store-item span {
+        font-weight: 600;
+    }
+    
     .back-button {
         position: fixed;
         top: 2rem;
         left: 2rem;
-        background: var(--secondary-dark);
+        background: var(--card-gradient);
         color: var(--accent-color);
-        border: none;
-        padding: 1rem;
-        border-radius: 50%;
+        border: 2px solid rgba(0, 255, 136, 0.3);
+        padding: 1.25rem;
+        border-radius: 18px;
         cursor: pointer;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 
+            0 8px 25px rgba(0, 0, 0, 0.3),
+            var(--glow-green);
         z-index: 1000;
+        backdrop-filter: blur(20px);
+        font-size: 1.2rem;
     }
     
     .back-button:hover {
         background: var(--accent-color);
-        color: white;
-        transform: translateY(-2px);
+        color: var(--primary-dark);
+        transform: translateY(-5px) scale(1.1);
+        box-shadow: 
+            0 15px 40px rgba(0, 255, 136, 0.4),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        border-color: rgba(255, 255, 255, 0.5);
     }
     
     .user-status {
-        background: var(--secondary-dark);
+        background: var(--card-gradient);
         border-radius: 20px;
-        padding: 1.5rem;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        padding: 2rem;
+        box-shadow: 
+            0 15px 35px rgba(0, 0, 0, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(20px);
     }
     
     .status-badge {
         display: inline-block;
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        font-weight: 600;
-        font-size: 0.9rem;
-        margin-bottom: 1rem;
+        padding: 0.875rem 1.5rem;
+        border-radius: 16px;
+        font-weight: 700;
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .status-badge::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+    }
+
+    .status-badge:hover::before {
+        left: 100%;
     }
     
     .status-completed {
-        background: var(--success-color);
+        background: linear-gradient(45deg, #10b981, #059669);
         color: white;
+        box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .status-completed:hover {
+        transform: scale(1.05) translateY(-2px);
+        box-shadow: 0 12px 30px rgba(16, 185, 129, 0.4);
     }
     
     .status-playing {
-        background: var(--warning-color);
-        color: #222;
+        background: linear-gradient(45deg, var(--accent-secondary), #e55a2b);
+        color: white;
+        box-shadow: var(--glow-orange);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .status-playing:hover {
+        transform: scale(1.05) translateY(-2px);
+        box-shadow: 0 12px 30px rgba(255, 107, 53, 0.4);
     }
     
     .status-plan {
-        background: #4a4a4a;
+        background: linear-gradient(45deg, var(--accent-purple), #9333ea);
         color: white;
+        box-shadow: var(--glow-purple);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .status-plan:hover {
+        transform: scale(1.05) translateY(-2px);
+        box-shadow: 0 12px 30px rgba(168, 85, 247, 0.4);
     }
     
     .rating-display {
         color: var(--text-secondary);
-        font-size: 1rem;
-        margin-top: 0.5rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-top: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
     }
-    
+
+    .rating-display i {
+        color: #fbbf24;
+        filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.5));
+    }
+
+    /* Уведомления - обновленные стили */
+    .notification {
+        position: fixed;
+        top: 2rem;
+        right: 2rem;
+        background: var(--card-gradient);
+        border-radius: 18px;
+        padding: 1.5rem 2rem;
+        box-shadow: 
+            0 15px 40px rgba(0, 0, 0, 0.4),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        z-index: 10000;
+        transform: translateX(120%);
+        transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(20px);
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        min-width: 350px;
+        max-width: 450px;
+    }
+
+    .notification.show {
+        transform: translateX(0);
+    }
+
+    .notification.success {
+        border-left: 4px solid var(--accent-color);
+        box-shadow: 
+            0 15px 40px rgba(0, 0, 0, 0.4),
+            var(--glow-green),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .notification.error {
+        border-left: 4px solid #ef4444;
+        box-shadow: 
+            0 15px 40px rgba(0, 0, 0, 0.4),
+            0 0 20px rgba(239, 68, 68, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .notification-icon {
+        font-size: 1.8rem;
+        flex-shrink: 0;
+    }
+
+    .notification.success .notification-icon {
+        color: var(--accent-color);
+        filter: drop-shadow(0 0 8px rgba(0, 255, 136, 0.4));
+    }
+
+    .notification.error .notification-icon {
+        color: #ef4444;
+        filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.4));
+    }
+
+    .notification-content {
+        flex-grow: 1;
+    }
+
+    .notification-title {
+        font-weight: 700;
+        color: var(--text-color);
+        margin: 0 0 0.5rem 0;
+        font-size: 1.1rem;
+    }
+
+    .notification-message {
+        color: var(--text-secondary);
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 500;
+    }
+
+    .notification-close {
+        background: transparent;
+        border: none;
+        color: var(--text-secondary);
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        flex-shrink: 0;
+        font-size: 1.2rem;
+    }
+
+    .notification-close:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text-color);
+        transform: scale(1.1);
+    }
+
+    /* Модальное окно для изменения статуса - обновленные стили */
+    .status-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        z-index: 10001;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(10px);
+        opacity: 0;
+        transition: all 0.4s ease;
+    }
+
+    .status-modal.show {
+        display: flex;
+        opacity: 1;
+    }
+
+    .status-modal-content {
+        background: var(--card-gradient);
+        border-radius: 24px;
+        padding: 2.5rem;
+        max-width: 450px;
+        width: 90%;
+        box-shadow: 
+            0 25px 60px rgba(0, 0, 0, 0.6),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(20px);
+        transform: scale(0.8) translateY(50px);
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        position: relative;
+    }
+
+    .status-modal-content::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, 
+            var(--accent-color) 0%, 
+            var(--accent-secondary) 50%, 
+            var(--accent-purple) 100%);
+        opacity: 0.8;
+        border-radius: 24px 24px 0 0;
+    }
+
+    .status-modal.show .status-modal-content {
+        transform: scale(1) translateY(0);
+    }
+
+    .status-modal-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .status-modal-title {
+        color: var(--text-color);
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin: 0 0 1rem 0;
+        background: linear-gradient(45deg, var(--accent-color), var(--accent-secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .status-modal-game-name {
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+        font-weight: 500;
+        margin: 0;
+    }
+
+    .status-options {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+        margin-bottom: 2rem;
+    }
+
+    .status-option {
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px solid transparent;
+        border-radius: 16px;
+        padding: 1.25rem 1.75rem;
+        color: var(--text-color);
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        position: relative;
+        overflow: hidden;
+        backdrop-filter: blur(10px);
+    }
+
+    .status-option::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+        transition: left 0.5s;
+    }
+
+    .status-option:hover::before {
+        left: 100%;
+    }
+
+    .status-option:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: var(--accent-color);
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 8px 25px rgba(0, 255, 136, 0.15);
+    }
+
+    .status-option.selected {
+        background: rgba(0, 255, 136, 0.15);
+        border-color: var(--accent-color);
+        box-shadow: var(--glow-green);
+    }
+
+    .status-option-icon {
+        font-size: 1.5rem;
+        width: 30px;
+        text-align: center;
+        filter: drop-shadow(0 0 8px currentColor);
+    }
+
+    .status-option.plan .status-option-icon {
+        color: var(--accent-purple);
+    }
+
+    .status-option.playing .status-option-icon {
+        color: var(--accent-secondary);
+    }
+
+    .status-option.completed .status-option-icon {
+        color: var(--accent-color);
+    }
+
+    .status-option-text {
+        flex-grow: 1;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    .status-modal-actions {
+        display: flex;
+        gap: 1.5rem;
+        justify-content: flex-end;
+    }
+
+    .modal-btn {
+        padding: 1rem 2rem;
+        border: none;
+        border-radius: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .modal-btn-cancel {
+        background: transparent;
+        color: var(--text-secondary);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .modal-btn-cancel:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text-color);
+        border-color: rgba(255, 255, 255, 0.3);
+        transform: translateY(-2px);
+    }
+
+    .modal-btn-save {
+        background: linear-gradient(45deg, var(--accent-color), #00cc66);
+        color: white;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        box-shadow: var(--glow-green);
+    }
+
+    .modal-btn-save:hover {
+        background: linear-gradient(45deg, #00cc66, var(--accent-color));
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 
+            0 8px 25px rgba(0, 255, 136, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
+
+    .modal-btn-save:disabled {
+        background: #4a4a4a;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+        opacity: 0.6;
+    }
+
     /* Адаптивность */
-    @media (max-width: 1200px) {
+    @media (max-width: 1400px) {
         .game-content {
             grid-template-columns: 1fr;
+        }
+        
+        .game-info-sidebar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
         }
     }
     
@@ -297,6 +862,7 @@
         .game-header {
             grid-template-columns: 1fr;
             text-align: center;
+            gap: 2rem;
         }
         
         .game-container {
@@ -304,12 +870,51 @@
         }
         
         .game-title {
-            font-size: 2rem;
+            font-size: 2.2rem;
         }
         
         .back-button {
             top: 1rem;
             left: 1rem;
+            padding: 1rem;
+        }
+
+        .notification {
+            top: 1rem;
+            right: 1rem;
+            min-width: 300px;
+        }
+
+        .game-meta {
+            justify-content: center;
+        }
+
+        .game-actions {
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .info-card {
+            padding: 1.5rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .game-title {
+            font-size: 1.8rem;
+        }
+
+        .action-btn {
+            padding: 0.875rem 1.5rem;
+            font-size: 1rem;
+        }
+
+        .status-modal-content {
+            padding: 1.5rem;
+        }
+
+        .game-poster {
+            height: 350px;
         }
     }
 </style>
@@ -394,8 +999,10 @@
                     <i class="fas fa-user"></i>
                     Ваш статус
                 </h3>
-                <div class="status-badge {% if user_game.status == 'Пройдена' %}status-completed{% elif user_game.status == 'Прохожу' %}status-playing{% else %}status-plan{% endif %}">
-                    {{ user_game.status }}
+                <div class="status-badge {% if user_game.status == 'COMPLETED' %}status-completed{% elif user_game.status == 'PLAYING' %}status-playing{% else %}status-plan{% endif %}" 
+                     onclick="openStatusModal('{{ game.slug }}', '{{ game.name }}', '{{ user_game.status }}')" 
+                     title="Нажмите для изменения статуса">
+                    {{ user_game.get_status_display }}
                 </div>
                 {% if user_game.user_raiting %}
                 <div class="rating-display">
@@ -420,6 +1027,20 @@
             </div>
             {% endif %}
             
+            {% if game.developers %}
+            <div class="info-card">
+                <h3 class="info-card-title">
+                    <i class="fas fa-code"></i>
+                    Разработчики
+                </h3>
+                <div class="tags-list">
+                    {% for developer in game.developers %}
+                    <span class="tag">{{ developer.name }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
             {% if game.platforms %}
             <div class="info-card">
                 <h3 class="info-card-title">
@@ -433,6 +1054,65 @@
                 </div>
             </div>
             {% endif %}
+            
+            {% if game.stores %}
+            <div class="info-card">
+                <h3 class="info-card-title">
+                    <i class="fas fa-shopping-cart"></i>
+                    Где купить
+                </h3>
+                <div class="stores-list">
+                    {% for store in game.stores %}
+                    <div class="store-item">
+                        <i class="fas fa-store"></i>
+                        <span>{{ store.name }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для изменения статуса -->
+<div id="statusModal" class="status-modal">
+    <div class="status-modal-content">
+        <div class="status-modal-header">
+            <h3 class="status-modal-title">Изменить статус игры</h3>
+            <p class="status-modal-game-name" id="modalGameName"></p>
+        </div>
+        
+        <div class="status-options">
+            <div class="status-option plan" data-status="PLAN_TO_PLAY">
+                <div class="status-option-icon">
+                    <i class="fas fa-list-check"></i>
+                </div>
+                <div class="status-option-text">Планирую пройти</div>
+            </div>
+            
+            <div class="status-option playing" data-status="PLAYING">
+                <div class="status-option-icon">
+                    <i class="fas fa-hourglass-half"></i>
+                </div>
+                <div class="status-option-text">Прохожу</div>
+            </div>
+            
+            <div class="status-option completed" data-status="COMPLETED">
+                <div class="status-option-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="status-option-text">Пройдена</div>
+            </div>
+        </div>
+        
+        <div class="status-modal-actions">
+            <button class="modal-btn modal-btn-cancel" onclick="closeStatusModal()">
+                Отмена
+            </button>
+            <button class="modal-btn modal-btn-save" id="saveStatusBtn" onclick="saveGameStatus()">
+                Сохранить
+            </button>
         </div>
     </div>
 </div>
@@ -446,6 +1126,167 @@ function getJWTToken() {
 {% if access_token %}
     localStorage.setItem('jwt_token', '{{ access_token }}');
 {% endif %}
+
+// Функция для показа уведомлений
+function showNotification(type, title, message) {
+    // Удаляем существующее уведомление, если есть
+    const existingNotification = document.querySelector('.notification');
+    if (existingNotification) {
+        existingNotification.remove();
+    }
+
+    // Создаем новое уведомление
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    
+    const iconClass = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+    
+    notification.innerHTML = `
+        <div class="notification-icon">
+            <i class="${iconClass}"></i>
+        </div>
+        <div class="notification-content">
+            <div class="notification-title">${title}</div>
+            <div class="notification-message">${message}</div>
+        </div>
+        <button class="notification-close" onclick="hideNotification(this)">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+
+    document.body.appendChild(notification);
+
+    // Показываем уведомление с анимацией
+    setTimeout(() => {
+        notification.classList.add('show');
+    }, 100);
+
+    // Автоматически скрываем через 5 секунд
+    setTimeout(() => {
+        hideNotification(notification);
+    }, 5000);
+}
+
+function hideNotification(element) {
+    const notification = element.closest ? element.closest('.notification') : element;
+    notification.classList.remove('show');
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+        }
+    }, 400);
+}
+
+// Переменные для модального окна статуса
+let currentGameSlug = null;
+let selectedStatus = null;
+
+// Открытие модального окна для изменения статуса
+function openStatusModal(gameSlug, gameName, currentStatus) {
+    currentGameSlug = gameSlug;
+    selectedStatus = currentStatus;
+    
+    document.getElementById('modalGameName').textContent = gameName;
+    
+    // Сброс выбранных опций
+    document.querySelectorAll('.status-option').forEach(option => {
+        option.classList.remove('selected');
+    });
+    
+    // Выделяем текущий статус
+    const currentOption = document.querySelector(`[data-status="${currentStatus}"]`);
+    if (currentOption) {
+        currentOption.classList.add('selected');
+    }
+    
+    // Показываем модальное окно
+    const modal = document.getElementById('statusModal');
+    modal.classList.add('show');
+    
+    // Добавляем обработчик клика на фон для закрытия
+    modal.onclick = function(e) {
+        if (e.target === modal) {
+            closeStatusModal();
+        }
+    };
+}
+
+// Закрытие модального окна
+function closeStatusModal() {
+    const modal = document.getElementById('statusModal');
+    modal.classList.remove('show');
+    currentGameSlug = null;
+    selectedStatus = null;
+}
+
+// Сохранение нового статуса
+function saveGameStatus() {
+    if (!currentGameSlug || !selectedStatus) {
+        showNotification('error', 'Ошибка', 'Выберите статус игры');
+        return;
+    }
+    
+    const saveBtn = document.getElementById('saveStatusBtn');
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Сохранение...';
+    
+    fetch('/api/user/games/', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + getJWTToken()
+        },
+        body: JSON.stringify({
+            slug: currentGameSlug,
+            status: selectedStatus
+        })
+    })
+    .then(response => {
+        if (response.ok) {
+            showNotification('success', 'Успешно!', 'Статус игры обновлен');
+            closeStatusModal();
+            // Обновляем страницу через 1.5 секунды
+            setTimeout(() => {
+                location.reload();
+            }, 1500);
+        } else {
+            return response.json().then(data => {
+                throw new Error(data.error || 'Не удалось обновить статус');
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Ошибка при обновлении статуса:', error);
+        showNotification('error', 'Ошибка', error.message || 'Не удалось обновить статус игры');
+    })
+    .finally(() => {
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Сохранить';
+    });
+}
+
+// Инициализация обработчиков для опций статуса
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.status-option').forEach(option => {
+        option.addEventListener('click', function() {
+            // Убираем выделение с других опций
+            document.querySelectorAll('.status-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            // Выделяем выбранную опцию
+            this.classList.add('selected');
+            selectedStatus = this.getAttribute('data-status');
+        });
+    });
+    
+    // Закрытие модального окна по Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeStatusModal();
+        }
+    });
+});
 
 // Обработчик для добавления игры в коллекцию
 const addGameBtn = document.getElementById('addGameBtn');
@@ -464,16 +1305,19 @@ if (addGameBtn) {
         .then(response => response.json())
         .then(data => {
             if (data.status === 'success') {
+                showNotification('success', 'Успешно!', 'Игра добавлена в коллекцию');
                 // Обновляем страницу для отображения изменений
-                location.reload();
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
             } else {
                 console.error('Ошибка при добавлении игры:', data);
-                alert('Ошибка при добавлении игры в коллекцию');
+                showNotification('error', 'Ошибка', 'Не удалось добавить игру в коллекцию');
             }
         })
         .catch(error => {
             console.error('Ошибка запроса:', error);
-            alert('Ошибка при добавлении игры в коллекцию');
+            showNotification('error', 'Ошибка', 'Не удалось добавить игру в коллекцию');
         });
     });
 }
@@ -482,12 +1326,33 @@ if (addGameBtn) {
 const removeGameBtn = document.getElementById('removeGameBtn');
 if (removeGameBtn) {
     removeGameBtn.addEventListener('click', function() {
-        if (confirm('Вы уверены, что хотите удалить эту игру из коллекции?')) {
-            const gameSlug = '{{ game.slug }}';
-            
-            // TODO: Добавить API endpoint для удаления игры из коллекции
-            alert('Функция удаления игры из коллекции будет добавлена позже');
-        }
+        const gameSlug = '{{ game.slug }}';
+        
+        fetch('/api/user/games/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + getJWTToken()
+            },
+            body: JSON.stringify({slug: gameSlug})
+        })
+        .then(response => {
+            if (response.status === 204) {
+                showNotification('success', 'Успешно!', 'Игра удалена из коллекции');
+                // Обновляем страницу для отображения изменений
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            } else if (response.status === 404) {
+                showNotification('error', 'Ошибка', 'Игра не найдена в вашей коллекции');
+            } else {
+                showNotification('error', 'Ошибка', 'Не удалось удалить игру из коллекции');
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка при удалении игры:', error);
+            showNotification('error', 'Ошибка', 'Не удалось удалить игру из коллекции');
+        });
     });
 }
 </script>

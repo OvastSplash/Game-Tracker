@@ -1,7 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.status import HTTP_201_CREATED
-from .serializers import GameListSerializer
+from .serializers import GameListSerializer, UpdateStatusSerializer
 from .create_serializers import GameSerializer
 from .object_to_json_serializers import UserGameSerializer
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -28,7 +27,6 @@ class GameList(APIView):
         
         # Сортируем игры по рейтингу Metacritic (если нет рейтинга, считаем его за 0)
         sorted_games = sorted(games, key=lambda x: x.get('metacritic', 0) or 0, reverse=True)
-        print(sorted_games)
         
         serializer = GameListSerializer(data=sorted_games, many=True)
         if serializer.is_valid():
@@ -163,7 +161,7 @@ class GetGame(APIView):
             "errors": serializer.errors if 'serializer' in locals() else {"detail": "Failed to fetch game data"}
         }, status=400)
         
-class GetUserGames(APIView):
+class UserGames(APIView):
     """
     Класс для получения списка игр пользователя
     Требует аутентификации через JWT
@@ -174,7 +172,46 @@ class GetUserGames(APIView):
     
     def get(self, request):
         """Получение списка всех игр пользователя с их статусами и рейтингами"""
-        user_id = request.user.id
-        games = UserGame.objects.filter(user=user_id)
+        user = request.user
+        games = UserGame.objects.filter(user=user)
         serializer = UserGameSerializer(games, many=True)
         return Response(serializer.data, status=200)
+    
+    # Удаление игры из коллекции пользователя
+    def post(self, request):
+        try:
+            user = request.user
+            game_slug = request.data.get('slug')
+            
+            game = UserGame.objects.filter(user=user).prefetch_related('game').get(game__slug=game_slug)
+            game.delete()
+            return Response(status=204)
+        
+        except UserGame.DoesNotExist:
+            return Response(status=404)
+        
+        except Exception as e:
+            return Response(status=500)
+        
+    # Изменение статуса игры
+    def put(self, request):
+        try:
+            user = request.user
+            game_slug = request.data.get('slug')
+            status = request.data.get('status')
+            serializer = UpdateStatusSerializer(data={'status': status})
+            if serializer.is_valid():
+                game = UserGame.objects.filter(user=user).prefetch_related('game').get(game__slug=game_slug)
+                game.status = status
+                game.save()
+                
+            else:
+                return Response(serializer.errors, status=400)
+                
+            return Response(status=200)
+        
+        except UserGame.DoesNotExist:
+            return Response(status=404)
+        except Exception as e:
+            return Response(status=500)
+        
