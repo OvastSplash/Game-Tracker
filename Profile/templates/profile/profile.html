@@ -44,6 +44,13 @@
                             <p class="stat-value">{{ games_not_started }}</p>
                         </div>
                     </div>
+                    <div class="stat-card">
+                        <i class="fas fa-clock stat-icon"></i>
+                        <div class="stat-info">
+                            <h3>Общее время в играх</h3>
+                            <p class="stat-value">{{ total_hours }}</p>
+                        </div>
+                    </div>
                 </div>
                 <!-- Блок для рендера игр пользователя -->
                 <div class="user-games-section mt-4">
@@ -2115,10 +2122,13 @@ function renderUserGames(games) {
         container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; font-size: 1.4rem; margin: 4rem 0; font-weight: 600;">У вас пока нет игр в коллекции 🎮</p>';
         return;
     }
+    
     games.forEach(obj => {
         const game = obj.game;
-        const status = statusMap[obj.status] || {text: obj.status, class: ''};
+        const status = statusMap[obj.status] || {text: obj.status || 'Неизвестно', class: 'plan'};
         const userRating = obj.user_raiting || 0;
+        const playtime = window.gamePlaytimes[game.name] || '—';
+
         
         // Создаем компонент рейтинга
         const ratingComponent = createRatingComponent(userRating, game.slug, game.name);
@@ -2130,6 +2140,9 @@ function renderUserGames(games) {
             <img class="user-game-img" src="${game.logo}" alt="${game.name}" onclick="navigateToGamePage('${game.slug}')" title="Перейти к описанию игры">
             <div class="user-game-content">
                 <h3 class="user-game-title" data-slug="${game.slug}" title="Перейти к описанию игры">${game.name}</h3>
+                <h3 class="user-game-playtime">
+                    <i class="fas fa-clock"></i> ${playtime}
+                </h3>
                 <span class="user-game-status ${status.class}" onclick="openStatusModal('${game.slug}', '${game.name}', '${obj.status}')" title="Изменить статус игры">
                     ${status.text}
                 </span>
@@ -2210,6 +2223,7 @@ window.addEventListener('DOMContentLoaded', function() {
     {% endif %}
     
     const userGames = {{ user_games_json|safe }};
+    window.gamePlaytimes = JSON.parse('{{ game_playtimes_json|escapejs }}');
     allUserGames = [...userGames];
     filteredUserGames = [...userGames];
     renderUserGames(userGames);
@@ -2225,6 +2239,7 @@ window.addEventListener('DOMContentLoaded', function() {
     
     // Анимация счетчиков статистики
     animateCounters();
+    
 });
 
 // Функция анимации счетчиков
@@ -2857,6 +2872,50 @@ document.addEventListener('DOMContentLoaded', function() {
 function navigateToGamePage(slug) {
     // Прямой редирект на страницу игры
     window.location.href = `/profile/game/${encodeURIComponent(slug)}/`;
+}
+
+// Функция выхода из аккаунта
+function logout() {
+    // Подтверждение выхода
+    if (confirm('Вы уверены, что хотите выйти из аккаунта?')) {
+        // Очищаем localStorage
+        localStorage.removeItem('jwt_token');
+        
+        // Отправляем POST запрос на logout
+        fetch('/logout/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Logout response:', data);
+            // Перенаправляем на главную страницу
+            window.location.href = '/';
+        })
+        .catch(error => {
+            console.error('Ошибка при выходе:', error);
+            // Все равно перенаправляем на главную
+            window.location.href = '/';
+        });
+    }
+}
+
+// Функция для получения CSRF токена из cookies
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
 }
 
 // ===== ФУНКЦИИ ДЛЯ РЕКОМЕНДАЦИЙ =====

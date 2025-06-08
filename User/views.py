@@ -2,10 +2,13 @@ from typing import Any
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.views.generic import CreateView
+from django.views import View
 from .forms import UserRegistrationForm, UserLoginForm
 from django.shortcuts import redirect
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, authenticate, logout
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 
 # Create your views here.
 class UserRegistrationView(CreateView):
@@ -51,3 +54,34 @@ class UserLoginView(CreateView):
             
                             
         return render(request, self.template_name, {'form': form})
+
+@method_decorator(csrf_exempt, name='dispatch')
+class CustomLogoutView(View):
+    def post(self, request):
+        """
+        Кастомный logout view, который работает с AJAX запросами
+        """
+        try:
+            # Выходим из системы
+            logout(request)
+            
+            # Очищаем токены из сессии
+            if 'tokens' in request.session:
+                del request.session['tokens']
+            
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Вы успешно вышли из аккаунта'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': f'Ошибка при выходе: {str(e)}'
+            }, status=500)
+    
+    def get(self, request):
+        """
+        GET запрос для обычного выхода (без AJAX)
+        """
+        logout(request)
+        return redirect('login')

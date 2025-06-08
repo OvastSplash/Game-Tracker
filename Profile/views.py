@@ -65,29 +65,46 @@ class Profile(View):
         sortedGames = {}
         hours_total = 0
         
-        for game in steamGames['response']['games']:
-            name = game['name']
-            if name in userGames:
-                time_in_minutes = game['playtime_forever']
-                hours_decimal = round(time_in_minutes / 60, 1)
-                hours_total += hours_decimal
-                formatted_time = f"{hours_decimal} ч."
-                sortedGames[name] = formatted_time
+        if steamGames and 'response' in steamGames and 'games' in steamGames['response']:
+            for game in steamGames['response']['games']:
+                name = game['name']
+                if name in userGames:
+                    time_in_minutes = game['playtime_forever']
+                    hours_decimal = round(time_in_minutes / 60, 1)
+                    hours_total += hours_decimal
+                    formatted_time = f"{hours_decimal} ч."
+                    sortedGames[name] = formatted_time
+            
+            print(int(hours_total))
+            print(sortedGames)
+            return sortedGames, int(hours_total)
         
-        print(int(hours_total))
-        print(sortedGames)
-        return sortedGames, int(hours_total)
+        return sortedGames, 0
 
     def get_user_steam_games(self, user):
-        params = {
-            'key': STEAM_API_TOKEN,
-            'steamid': user.steam_id,
-            'format': 'json',
-            'include_appinfo': 1,
-            'include_played_free_games': 1,
-        }
-        response = requests.get('https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/', params=params)
-        return response.json()
+        try:
+            params = {
+                'key': STEAM_API_TOKEN,
+                'steamid': user.steam_id,
+                'format': 'json',
+                'include_appinfo': 1,
+                'include_played_free_games': 1,
+            }
+            response = requests.get('https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/', params=params)
+            
+            if response.status_code == 200:
+                if response.text.strip():
+                    return response.json()
+                else:
+                    print("Steam API вернул пустой ответ")
+                    return None
+            else:
+                print(f"Steam API вернул код {response.status_code}: {response.text}")
+                return None
+                
+        except (requests.RequestException, ValueError, KeyError) as e:
+            print(f"Ошибка при запросе к Steam API: {e}")
+            return None
 
 @method_decorator(login_required, name="dispatch")        
 class Game(View):

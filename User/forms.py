@@ -6,7 +6,7 @@ class UserRegistrationForm(forms.ModelForm):
     login = forms.CharField(label="Логин", max_length=20)
     password = forms.CharField(label='Пароль', widget=forms.PasswordInput)
     check_password = forms.CharField(label='Повторите пароль', widget=forms.PasswordInput)
-    steam_id = forms.IntegerField(label="ID Steam (необязательно)", required=False)
+    steam_id = forms.CharField(label="ID Steam (необязательно)", required=False)
     favorite_genre = forms.CharField(label="Любимый жанр (необязательно)", required=False)
     
     class Meta:
@@ -38,14 +38,6 @@ class UserRegistrationForm(forms.ModelForm):
     
     def clean_steam_id(self):
         steam_id = self.cleaned_data.get("steam_id")
-        
-        if steam_id:
-            if not str(steam_id).isdigit():
-                raise forms.ValidationError("ID Steam должен быть числом")
-            
-            if len(str(steam_id)) != 17:
-                raise forms.ValidationError("ID Steam должен содержать 17 цифр")
-            
         return steam_id
     
     def save(self, commit=True):

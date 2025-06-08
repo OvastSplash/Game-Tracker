@@ -9,7 +9,6 @@ class GameSerializer(serializers.ModelSerializer):
 
 class UserGameSerializer(serializers.ModelSerializer):
     game = GameSerializer()
-    status = serializers.CharField(source='get_status_display', read_only=True)
     
     class Meta:
         model = UserGame
