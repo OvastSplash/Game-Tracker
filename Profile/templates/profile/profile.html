@@ -89,6 +89,20 @@
                         <!-- Здесь будут отображаться результаты поиска -->
                     </div>
                 </div>
+                
+                <!-- Секция рекомендуемых игр -->
+                <div class="recommendations-section">
+                    <h2 class="recommendations-title">
+                        <i class="fas fa-star"></i>
+                        Рекомендуемые игры
+                    </h2>
+                    <div id="recommendationsContainer" class="recommendations-container">
+                        <div class="recommendations-loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Загружаем рекомендации...</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -849,6 +863,10 @@
         border-left-color: #e74c3c;
     }
 
+    .notification.info {
+        border-left-color: #3498db;
+    }
+
     .notification-icon {
         font-size: 1.5rem;
         flex-shrink: 0;
@@ -860,6 +878,10 @@
 
     .notification.error .notification-icon {
         color: #e74c3c;
+    }
+
+    .notification.info .notification-icon {
+        color: #3498db;
     }
 
     .notification-content {
@@ -1538,6 +1560,10 @@
         border-left: 4px solid #ef4444;
     }
 
+    .notification.info {
+        border-left-color: #3498db;
+    }
+
     .notification-icon {
         flex-shrink: 0;
         font-size: 1.5rem;
@@ -1549,6 +1575,10 @@
 
     .notification.error .notification-icon {
         color: #ef4444;
+    }
+
+    .notification.info .notification-icon {
+        color: #3498db;
     }
 
     .notification-content {
@@ -1659,13 +1689,176 @@
             font-size: 1.5rem;
         }
     }
+
+    /* Стили для рекомендаций */
+    .recommendations-section {
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .recommendations-title {
+        color: var(--text-color);
+        font-size: 1.5rem;
+        margin: 0 0 1.5rem 0;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .recommendations-title i {
+        color: var(--accent-secondary);
+        font-size: 1.3rem;
+    }
+
+    .recommendations-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .recommendations-loading {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 2rem;
+        color: var(--text-secondary);
+    }
+
+    .recommendations-loading i {
+        font-size: 2rem;
+        color: var(--accent-color);
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .recommendation-card {
+        background: var(--card-gradient);
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        cursor: pointer;
+        position: relative;
+    }
+
+    .recommendation-card:hover {
+        transform: translateY(-4px) scale(1.02);
+        box-shadow: 
+            0 10px 25px rgba(0, 0, 0, 0.3),
+            var(--glow-green);
+        border-color: rgba(0, 255, 136, 0.3);
+    }
+
+    .recommendation-image {
+        width: 100%;
+        height: 120px;
+        object-fit: cover;
+        transition: all 0.3s ease;
+    }
+
+    .recommendation-card:hover .recommendation-image {
+        transform: scale(1.05);
+        filter: brightness(1.1);
+    }
+
+    .recommendation-content {
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .recommendation-title {
+        color: var(--text-color);
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin: 0;
+        line-height: 1.2;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .recommendation-meta {
+        color: var(--text-secondary);
+        font-size: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .recommendation-rating {
+        background: var(--accent-color);
+        color: var(--primary-dark);
+        padding: 0.2rem 0.4rem;
+        border-radius: 4px;
+        font-weight: bold;
+        font-size: 0.7rem;
+    }
+
+    .recommendation-add-btn {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        background: rgba(0, 0, 0, 0.7);
+        border: none;
+        color: var(--accent-color);
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        opacity: 0;
+        backdrop-filter: blur(10px);
+    }
+
+    .recommendation-card:hover .recommendation-add-btn {
+        opacity: 1;
+    }
+
+    .recommendation-add-btn:hover {
+        background: var(--accent-color);
+        color: var(--primary-dark);
+        transform: scale(1.1);
+    }
+
+    .recommendations-empty {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 2rem;
+        color: var(--text-secondary);
+    }
+
+    .recommendations-empty i {
+        font-size: 2rem;
+        color: var(--accent-secondary);
+        margin-bottom: 1rem;
+        display: block;
+        opacity: 0.5;
+    }
+
+    /* Адаптивность для рекомендаций */
+    @media (max-width: 1200px) {
+        .recommendations-container {
+            grid-template-columns: 1fr;
+        }
+    }
 </style>
 
 <script>
 let searchTimeout;
 
 function getJWTToken() {
-    return localStorage.getItem('jwt_token');
+    const token = localStorage.getItem('jwt_token');
+    if (!token) {
+        console.warn('JWT токен не найден. Проверьте авторизацию.');
+    }
+    return token;
 }
 
 const statusMap = {
@@ -1778,6 +1971,9 @@ window.addEventListener('DOMContentLoaded', function() {
     // Инициализируем поиск пользовательских игр
     initUserGamesSearch();
     
+    // Загружаем рекомендации
+    fetchRecommendations();
+    
     // Анимация счетчиков статистики
     animateCounters();
 });
@@ -1880,19 +2076,32 @@ document.addEventListener('click', function(e) {
 
 function fetchGames(query) {
     const resultsContainer = document.getElementById('searchResults');
+    const token = getJWTToken();
     
-         // Показываем индикатор загрузки
-     resultsContainer.innerHTML = `
-         <div style="padding: 2rem; text-align: center; color: var(--text-secondary);">
-             <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--accent-color); margin-bottom: 1rem; display: block;"></i>
-             <p style="margin: 0; font-size: 1.1rem; font-weight: 600;">Поиск игр...</p>
-             <p style="margin: 0.5rem 0 0; font-size: 0.9rem; opacity: 0.7;">Пожалуйста, подождите</p>
-         </div>
-     `;
+    // Проверяем наличие токена
+    if (!token) {
+        resultsContainer.innerHTML = `
+            <div style="padding: 2rem; text-align: center; color: #ef4444;">
+                <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
+                <p style="margin: 0; font-size: 1.1rem; font-weight: 700;">Ошибка авторизации</p>
+                <p style="margin: 0.5rem 0 0; font-size: 0.9rem; opacity: 0.8; line-height: 1.4;">Необходимо перезайти в аккаунт.<br>Обновите страницу и попробуйте снова.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // Показываем индикатор загрузки
+    resultsContainer.innerHTML = `
+        <div style="padding: 2rem; text-align: center; color: var(--text-secondary);">
+            <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--accent-color); margin-bottom: 1rem; display: block;"></i>
+            <p style="margin: 0; font-size: 1.1rem; font-weight: 600;">Поиск игр...</p>
+            <p style="margin: 0.5rem 0 0; font-size: 0.9rem; opacity: 0.7;">Пожалуйста, подождите</p>
+        </div>
+    `;
     
     fetch(`/api/gameList/${encodeURIComponent(query)}/`, {
         headers: {
-            'Authorization': 'Bearer ' + getJWTToken()
+            'Authorization': `Bearer ${token}`
         }
     })
         .then(response => response.json())
@@ -1992,11 +2201,18 @@ function createGameElement(game) {
 }
 
 function addGameToProfile(slug) {
+    const token = getJWTToken();
+    
+    if (!token) {
+        showNotification('error', 'Ошибка авторизации', 'Необходимо перезайти в аккаунт');
+        return;
+    }
+    
     fetch(`/api/game/${encodeURIComponent(slug)}/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + getJWTToken()
+            'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({addGame: true})
     })
@@ -2020,9 +2236,16 @@ function addGameToProfile(slug) {
 }
 
 function fetchUserGames() {
+    const token = getJWTToken();
+    
+    if (!token) {
+        console.error('Невозможно загрузить игры пользователя: отсутствует токен авторизации');
+        return;
+    }
+    
     fetch('/api/user/games/', {
         headers: {
-            'Authorization': 'Bearer ' + getJWTToken()
+            'Authorization': `Bearer ${token}`
         }
     })
     .then(response => response.json())
@@ -2386,5 +2609,196 @@ function navigateToGamePage(slug) {
     // Прямой редирект на страницу игры
     window.location.href = `/profile/game/${encodeURIComponent(slug)}/`;
 }
+
+// ===== ФУНКЦИИ ДЛЯ РЕКОМЕНДАЦИЙ =====
+
+// Загрузка рекомендаций
+function fetchRecommendations() {
+    const container = document.getElementById('recommendationsContainer');
+    const token = getJWTToken();
+    
+    if (!token) {
+        container.innerHTML = `
+            <div class="recommendations-empty">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>Невозможно загрузить рекомендации</p>
+                <p>Необходимо перезайти в аккаунт</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // Показываем индикатор загрузки
+    container.innerHTML = `
+        <div class="recommendations-loading">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Загружаем рекомендации...</p>
+        </div>
+    `;
+    
+    fetch('/api/user/recomended/', {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data && data.length > 0) {
+            renderRecommendations(data);
+        } else {
+            container.innerHTML = `
+                <div class="recommendations-empty">
+                    <i class="fas fa-gamepad"></i>
+                    <p>Рекомендации не найдены</p>
+                    <p>Добавьте игры в коллекцию для получения персонализированных рекомендаций</p>
+                </div>
+            `;
+        }
+    })
+    .catch(error => {
+        console.error('Ошибка загрузки рекомендаций:', error);
+        container.innerHTML = `
+            <div class="recommendations-empty">
+                <i class="fas fa-exclamation-circle"></i>
+                <p>Ошибка загрузки рекомендаций</p>
+                <p>Попробуйте обновить страницу</p>
+            </div>
+        `;
+    });
+}
+
+// Отображение рекомендаций
+function renderRecommendations(games) {
+    const container = document.getElementById('recommendationsContainer');
+    container.innerHTML = '';
+    
+    // Ограничиваем до 10 игр и показываем по 2 в ряд
+    const limitedGames = games.slice(0, 10);
+    
+    limitedGames.forEach(game => {
+        const card = createRecommendationCard(game);
+        container.appendChild(card);
+    });
+}
+
+// Создание карточки рекомендации
+function createRecommendationCard(game) {
+    const card = document.createElement('div');
+    card.className = 'recommendation-card';
+    card.setAttribute('data-game-slug', game.slug);
+    
+    // Клик по карточке ведет на страницу игры
+    card.addEventListener('click', function(e) {
+        if (!e.target.closest('.recommendation-add-btn')) {
+            navigateToGamePage(game.slug);
+        }
+    });
+    
+    const rating = game.metacritic || game.rating || 0;
+    const imageUrl = game.background_image || game.logo || '/static/images/no-image.jpg';
+    
+    card.innerHTML = `
+        <img class="recommendation-image" src="${imageUrl}" alt="${game.name}" />
+        <button class="recommendation-add-btn" onclick="addRecommendationToCollection('${game.slug}', event)" title="Добавить в коллекцию">
+            <i class="fas fa-plus"></i>
+        </button>
+        <div class="recommendation-content">
+            <h3 class="recommendation-title">${game.name}</h3>
+            <div class="recommendation-meta">
+                ${rating > 0 ? `<span class="recommendation-rating">${Math.round(rating)}</span>` : ''}
+                ${game.genres && game.genres.length > 0 ? 
+                    `<span>${game.genres.slice(0, 2).map(g => g.name).join(', ')}</span>` : 
+                    ''
+                }
+            </div>
+        </div>
+    `;
+    
+    return card;
+}
+
+// Добавление рекомендованной игры в коллекцию
+function addRecommendationToCollection(slug, event) {
+    if (event) {
+        event.stopPropagation(); // Предотвращаем переход на страницу игры
+    }
+    
+    const token = getJWTToken();
+    
+    if (!token) {
+        showNotification('error', 'Ошибка авторизации', 'Необходимо перезайти в аккаунт');
+        return;
+    }
+    
+    // Находим карточку и показываем индикатор загрузки
+    const card = document.querySelector(`[data-game-slug="${slug}"]`);
+    const addBtn = card ? card.querySelector('.recommendation-add-btn') : null;
+    
+    if (addBtn) {
+        addBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        addBtn.disabled = true;
+    }
+    
+    fetch(`/api/game/${encodeURIComponent(slug)}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({addGame: true})
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            showNotification('success', 'Успешно!', 'Игра добавлена в коллекцию');
+            
+            // Обновляем счетчики
+            updateStatsAfterGameAddition();
+            
+            // Обновляем список игр пользователя
+            fetchUserGames();
+            
+            // Перезагружаем рекомендации
+            setTimeout(() => {
+                fetchRecommendations();
+            }, 1000);
+            
+        } else if (data.code === 'game_exists') {
+            showNotification('info', 'Информация', 'Игра уже есть в вашей коллекции');
+        } else {
+            showNotification('error', 'Ошибка', data.message || 'Не удалось добавить игру в коллекцию');
+        }
+    })
+    .catch(error => {
+        console.error('Ошибка при добавлении игры:', error);
+        showNotification('error', 'Ошибка', 'Не удалось добавить игру в коллекцию');
+    })
+    .finally(() => {
+        // Восстанавливаем кнопку
+        if (addBtn) {
+            addBtn.innerHTML = '<i class="fas fa-plus"></i>';
+            addBtn.disabled = false;
+        }
+    });
+}
+
+// Обновляем функции добавления и удаления игр, чтобы они обновляли рекомендации
+const originalAddGameToProfile = addGameToProfile;
+addGameToProfile = function(slug) {
+    originalAddGameToProfile(slug);
+    // Перезагружаем рекомендации после добавления игры
+    setTimeout(() => {
+        fetchRecommendations();
+    }, 1000);
+};
+
+const originalDeleteGameFromCollection = deleteGameFromCollection;
+deleteGameFromCollection = function(slug) {
+    originalDeleteGameFromCollection(slug);
+    // Перезагружаем рекомендации после удаления игры
+    setTimeout(() => {
+        fetchRecommendations();
+    }, 1000);
+};
 </script>
 {% endblock %} 

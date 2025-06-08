@@ -6,9 +6,10 @@ from .object_to_json_serializers import UserGameSerializer
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import get_user_model
-from .models import Game, UserGame
+from .models import Game, UserGame, Genre
 from GameTracker.settings import RAWG_API_TOKEN
 import requests
+from django.db.models import Count
 
 User = get_user_model()
 
@@ -19,9 +20,31 @@ class GameList(APIView):
     """
     def get(self, request, GameName):
         # Формируем URL для поиска игр, ограничиваем 5 результатами
-        url = f"https://api.rawg.io/api/games?search={GameName}&key={RAWG_API_TOKEN}&page_size=5"
+        params = {
+            'key': RAWG_API_TOKEN,
+            'search': GameName,
+            'page_size': 10,  # Увеличиваем количество для лучшей фильтрации
+            'ordering': '-metacritic,-rating,-added',  # Приоритет Metacritic рейтингу
+            
+            # === ФИЛЬТРЫ КАЧЕСТВА ===
+            'metacritic': '65,100',        # Только игры с Metacritic 65+
+            'rating': '3.5,5',             # Только игры с рейтингом 3.5+
+            'reviews_count': '50,999999',   # Минимум 50 отзывов
+            
+            # === ФИЛЬТРЫ ПЛАТФОРМ (исключаем мобильные) ===
+            'platforms': '4,187,1,18,186,7', # PC, PS5, Xbox One, PS4, Xbox Series, Nintendo Switch
+            
+            # === ВРЕМЕННЫЕ ФИЛЬТРЫ ===
+            'dates': '2000-01-01', # Игры с 2010
+            
+            # === ИСКЛЮЧЕНИЯ ===
+            'exclude_additions': 'true',    # Исключить DLC
+            'exclude_parents': 'true',      # Исключить родительские записи
+        }
+        
+        url = "https://api.rawg.io/api/games"
 
-        response = requests.get(url)
+        response = requests.get(url, params=params)
         data = response.json()
         games = data.get('results', [])
         
@@ -215,3 +238,48 @@ class UserGames(APIView):
         except Exception as e:
             return Response(status=500)
         
+
+class RecomendedGames(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        user = request.user
+        favorite_genres = Genre.objects.filter(
+            genres__usergame__user__id=user.id
+        ).annotate(
+            count=Count('genres__usergame')
+        ).order_by('-count')
+        
+        top_genres = favorite_genres[:3]
+
+        if top_genres:        
+            genres_string = ",".join([genre.name.lower().replace(" ", "-") for genre in top_genres[:len(top_genres)]])
+            params = {
+                'key': RAWG_API_TOKEN,
+                'genres': genres_string,
+                'page_size': 10,
+                'metacritic': '75,100',
+                'ordering': '-metacritic,-rating,-added',
+            }
+        else:
+            params = {
+                'key': RAWG_API_TOKEN,
+                'page_size': 10,
+                'metacritic': '75,100',
+                'ordering': '-metacritic,-rating,-added',
+            }
+        
+        response = requests.get("https://api.rawg.io/api/games", params=params)
+        
+        if response.status_code == 200:
+            data = response.json()
+            games = data.get('results', [])
+            sorted_games = sorted(games, key=lambda x: x.get('metacritic', 0) or 0, reverse=True)
+            serializer = GameListSerializer(data=sorted_games, many=True)
+            if serializer.is_valid():
+                return Response(serializer.data, status=200)
+            else:
+                return Response(serializer.errors, status=400)
+            
+        return Response(status=400)
