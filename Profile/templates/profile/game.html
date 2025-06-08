@@ -546,93 +546,95 @@
         position: fixed;
         top: 2rem;
         right: 2rem;
+        min-width: 350px;
+        max-width: 500px;
         background: var(--card-gradient);
-        border-radius: 18px;
-        padding: 1.5rem 2rem;
-        box-shadow: 
-            0 15px 40px rgba(0, 0, 0, 0.4),
-            inset 0 1px 0 rgba(255, 255, 255, 0.1);
-        z-index: 10000;
-        transform: translateX(120%);
-        transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        border-radius: 16px;
+        padding: 1.5rem;
         border: 1px solid rgba(255, 255, 255, 0.08);
         backdrop-filter: blur(20px);
+        box-shadow: 
+            0 25px 50px rgba(0, 0, 0, 0.4),
+            0 0 0 1px rgba(255, 255, 255, 0.05);
+        z-index: 10001;
+        opacity: 0;
+        transform: translateX(100%);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         display: flex;
-        align-items: center;
-        gap: 1.5rem;
-        min-width: 350px;
-        max-width: 450px;
+        align-items: flex-start;
+        gap: 1rem;
+        border-left: 4px solid;
     }
 
     .notification.show {
+        opacity: 1;
         transform: translateX(0);
     }
 
     .notification.success {
-        border-left: 4px solid var(--accent-color);
-        box-shadow: 
-            0 15px 40px rgba(0, 0, 0, 0.4),
-            var(--glow-green),
-            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        border-left-color: #2ecc71;
     }
 
     .notification.error {
-        border-left: 4px solid #ef4444;
-        box-shadow: 
-            0 15px 40px rgba(0, 0, 0, 0.4),
-            0 0 20px rgba(239, 68, 68, 0.3),
-            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        border-left-color: #e74c3c;
+    }
+
+    .notification.info {
+        border-left-color: #3498db;
     }
 
     .notification-icon {
-        font-size: 1.8rem;
         flex-shrink: 0;
+        font-size: 1.5rem;
+        margin-top: 0.25rem;
     }
 
     .notification.success .notification-icon {
-        color: var(--accent-color);
-        filter: drop-shadow(0 0 8px rgba(0, 255, 136, 0.4));
+        color: #2ecc71;
     }
 
     .notification.error .notification-icon {
-        color: #ef4444;
-        filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.4));
+        color: #e74c3c;
+    }
+
+    .notification.info .notification-icon {
+        color: #3498db;
     }
 
     .notification-content {
-        flex-grow: 1;
+        flex: 1;
+        min-width: 0;
     }
 
     .notification-title {
-        font-weight: 700;
         color: var(--text-color);
-        margin: 0 0 0.5rem 0;
         font-size: 1.1rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem 0;
+        line-height: 1.2;
     }
 
     .notification-message {
         color: var(--text-secondary);
+        font-size: 0.95rem;
+        line-height: 1.4;
         margin: 0;
-        font-size: 1rem;
-        font-weight: 500;
     }
 
     .notification-close {
-        background: transparent;
+        background: none;
         border: none;
         color: var(--text-secondary);
         cursor: pointer;
-        padding: 0.5rem;
-        border-radius: 8px;
+        padding: 0.25rem;
+        border-radius: 4px;
         transition: all 0.3s ease;
         flex-shrink: 0;
-        font-size: 1.2rem;
     }
 
     .notification-close:hover {
-        background: rgba(255, 255, 255, 0.1);
         color: var(--text-color);
-        transform: scale(1.1);
+        background: rgba(255, 255, 255, 0.1);
     }
 
     /* Модальное окно для изменения статуса - обновленные стили */
@@ -761,8 +763,9 @@
     }
 
     .status-option.selected {
-        background: rgba(0, 255, 136, 0.15);
         border-color: var(--accent-color);
+        background: rgba(0, 255, 136, 0.1);
+        transform: translateY(-2px);
         box-shadow: var(--glow-green);
     }
 
@@ -917,6 +920,259 @@
             height: 350px;
         }
     }
+
+    /* Стили для рейтинга */
+    .user-rating-section {
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .rating-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+    }
+
+    .rating-label i {
+        color: var(--accent-color);
+    }
+
+    .rating-display-game {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        padding: 0.75rem 1rem;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        width: 100%;
+    }
+
+    .rating-display-game:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: var(--accent-color);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 255, 136, 0.15);
+    }
+
+    .rating-stars-game {
+        display: flex;
+        align-items: center;
+        gap: 0.2rem;
+    }
+
+    .star-game-interactive {
+        position: relative;
+        font-size: 1.4rem;
+        color: #444;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        user-select: none;
+    }
+
+    .star-game-interactive:hover {
+        color: #888 !important;
+        transform: scale(1.05);
+    }
+
+    .star-game-interactive.active {
+        color: #ffd700;
+    }
+
+    .star-game-interactive.active:hover {
+        color: #ffed4e !important;
+    }
+
+
+
+    .rating-text-game {
+        color: var(--text-color);
+        font-weight: 600;
+        font-size: 1rem;
+    }
+
+    /* Модальное окно рейтинга */
+    .rating-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(5px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .rating-modal.show {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .rating-modal-content {
+        background: var(--card-gradient);
+        border-radius: 20px;
+        padding: 2rem;
+        max-width: 400px;
+        width: 90%;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        transform: scale(0.8);
+        transition: all 0.3s ease;
+    }
+
+    .rating-modal.show .rating-modal-content {
+        transform: scale(1);
+    }
+
+    .rating-modal-title {
+        color: var(--text-color);
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin: 0 0 1rem 0;
+        text-align: center;
+    }
+
+    .rating-modal-game {
+        color: var(--accent-color);
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 0 0 2rem 0;
+        text-align: center;
+    }
+
+    .rating-selector {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin: 2rem 0;
+        flex-wrap: wrap;
+    }
+
+    .rating-option {
+        width: 40px;
+        height: 40px;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        color: var(--text-secondary);
+        font-weight: 700;
+        font-size: 1rem;
+    }
+
+    .rating-option:hover {
+        border-color: var(--accent-color);
+        background: rgba(0, 255, 136, 0.1);
+        color: var(--accent-color);
+        transform: scale(1.1);
+    }
+
+    .rating-option.selected {
+        border-color: var(--accent-color);
+        background: var(--accent-color);
+        color: var(--primary-dark);
+        transform: scale(1.1);
+    }
+
+    .rating-modal-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+
+    .rating-modal-btn {
+        padding: 0.75rem 2rem;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+    }
+
+    .rating-modal-btn.primary {
+        background: var(--accent-color);
+        color: var(--primary-dark);
+    }
+
+    .rating-modal-btn.primary:hover {
+        background: #00e67a;
+        transform: translateY(-2px);
+    }
+
+    .rating-modal-btn.secondary {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text-color);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .rating-modal-btn.secondary:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Стили для интерактивных звездочек */
+    .star-rating-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        margin: 2rem 0;
+    }
+
+    .star-rating {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 2.5rem;
+        cursor: pointer;
+    }
+
+    .star-rating i {
+        color: #444;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .star-rating i:hover {
+        transform: scale(1.1);
+    }
+
+    .star-rating i.active {
+        color: #ffd700;
+    }
+
+    .star-rating i.active.half {
+        background: linear-gradient(90deg, #ffd700 50%, #444 50%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .rating-text-display {
+        font-size: 1.1rem;
+        color: var(--text-color);
+        font-weight: 600;
+        text-align: center;
+        min-height: 1.5rem;
+    }
 </style>
 
 <button class="back-button" onclick="history.back()">
@@ -1004,12 +1260,22 @@
                      title="Нажмите для изменения статуса">
                     {{ user_game.get_status_display }}
                 </div>
-                {% if user_game.user_raiting %}
-                <div class="rating-display">
-                    <i class="fas fa-star"></i>
-                    Ваша оценка: {{ user_game.user_raiting }}/10
+                
+                <!-- Компонент рейтинга -->
+                <div class="user-rating-section">
+                    <div class="rating-label">
+                        <i class="fas fa-star"></i>
+                        Ваша оценка
+                    </div>
+                    <div class="rating-display-game" data-game-slug="{{ game.slug }}" data-game-name="{{ game.name }}">
+                        <div class="rating-stars-game" id="gameRatingStars">
+                            <!-- Звезды будут добавлены через JavaScript -->
+                        </div>
+                        <span class="rating-text-game" id="gameRatingText">
+                            {% if user_game.user_raiting %}{{ user_game.user_raiting }}/10{% else %}Не оценена{% endif %}
+                        </span>
+                    </div>
                 </div>
-                {% endif %}
             </div>
             {% endif %}
             
@@ -1116,6 +1382,8 @@
         </div>
     </div>
 </div>
+
+
 
 <script>
 function getJWTToken() {
@@ -1355,6 +1623,104 @@ if (removeGameBtn) {
         });
     });
 }
+
+// ===== ФУНКЦИИ ДЛЯ РЕЙТИНГА =====
+
+function generateStarsForGame(rating) {
+    let stars = '';
+    
+    for (let i = 1; i <= 5; i++) {
+        const isActive = i <= rating;
+        const starClass = isActive ? 'star-game-interactive fas fa-star active' : 'star-game-interactive far fa-star';
+        
+        stars += `<i class="${starClass}" data-rating="${i}"></i>`;
+    }
+    
+    return stars;
+}
+
+function updateGameRatingDisplay(newRating) {
+    const starsContainer = document.getElementById('gameRatingStars');
+    const textContainer = document.getElementById('gameRatingText');
+    
+    if (starsContainer) {
+        starsContainer.innerHTML = generateStarsForGame(newRating);
+        
+        // Добавляем обработчики событий для звезд
+        const stars = starsContainer.querySelectorAll('.star-game-interactive');
+        stars.forEach(star => {
+                         star.addEventListener('click', function() {
+                 const rating = parseInt(this.getAttribute('data-rating'));
+                 updateGameRating('{{ game.slug }}', rating);
+             });
+            
+            
+        });
+        
+
+    }
+    
+    if (textContainer) {
+        textContainer.textContent = newRating > 0 ? `${newRating}/5` : 'Не оценена';
+    }
+}
+
+
+
+function getCurrentRating() {
+    {% if user_game and user_game.user_raiting %}
+        return {{ user_game.user_raiting }};
+    {% else %}
+        return 0;
+    {% endif %}
+}
+
+function updateGameRating(gameSlug, newRating) {
+    const token = getJWTToken();
+    
+    if (!token) {
+        showNotification('error', 'Ошибка авторизации', 'Необходимо перезайти в аккаунт');
+        return;
+    }
+    
+    // Отправляем запрос на API
+    fetch(`/api/user/game/${encodeURIComponent(gameSlug)}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+            raiting: newRating
+        })
+    })
+    .then(response => {
+        if (response.ok) {
+            // Обновляем отображение
+            updateGameRatingDisplay(newRating);
+            
+            const starText = newRating === 1 ? '1 звезда' : newRating <= 4 ? `${newRating} звезды` : `${newRating} звезд`;
+            showNotification('success', 'Оценка сохранена!', `Ваша оценка: ${starText}`);
+        } else {
+            throw new Error('Ошибка сервера');
+        }
+    })
+    .catch(error => {
+        console.error('Ошибка при изменении рейтинга:', error);
+        showNotification('error', 'Ошибка', 'Не удалось изменить оценку игры');
+    });
+}
+
+// Инициализация звезд при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+    {% if user_game and user_game.user_raiting %}
+        updateGameRatingDisplay({{ user_game.user_raiting }});
+    {% else %}
+        updateGameRatingDisplay(0);
+    {% endif %}
+});
+
+// Старые функции модального окна удалены
 </script>
 
 {% endblock %} 

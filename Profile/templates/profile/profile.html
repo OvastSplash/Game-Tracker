@@ -150,6 +150,8 @@
     </div>
 </div>
 
+
+
 <style>
     :root {
         --primary-dark: #0a0a0a;
@@ -805,29 +807,63 @@
     }
     
     .user-game-rating {
-        color: var(--text-secondary);
-        font-size: 1.1rem;
-        font-weight: 600;
         display: flex;
         align-items: center;
-        gap: 0.75rem;
-        margin-top: auto;
-        padding: 0.75rem 1rem;
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        gap: 0.5rem;
+        margin: 0.5rem 0;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    .rating-display {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
         transition: all 0.3s ease;
+        padding: 0.5rem;
+        border-radius: 8px;
+        width: 100%;
     }
-    
-    .user-game-rating:hover {
-        background: rgba(255, 255, 255, 0.08);
-        border-color: rgba(255, 255, 255, 0.15);
+
+    .rating-display:hover {
+        background: rgba(255, 255, 255, 0.05);
     }
-    
-    .user-game-rating i {
-        color: #fbbf24;
+
+    .rating-stars {
+        display: flex;
+        align-items: center;
+        gap: 0.2rem;
+    }
+
+    .star-interactive {
+        position: relative;
         font-size: 1.2rem;
-        filter: drop-shadow(0 0 5px rgba(251, 191, 36, 0.4));
+        color: #444;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        user-select: none;
+    }
+
+    .star-interactive:hover {
+        color: #888 !important;
+        transform: scale(1.05);
+    }
+
+    .star-interactive.active {
+        color: #ffd700;
+    }
+
+    .star-interactive.active:hover {
+        color: #ffed4e !important;
+    }
+
+
+
+    .rating-text {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        font-weight: 500;
     }
 
     /* Уведомления */
@@ -1848,6 +1884,211 @@
             grid-template-columns: 1fr;
         }
     }
+
+    /* Стили для рейтинга игр */
+    .user-game-rating {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 0.5rem 0;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    .rating-display {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        padding: 0.25rem 0.5rem;
+        border-radius: 8px;
+    }
+
+    .rating-display:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--accent-color);
+    }
+
+    .rating-stars {
+        display: flex;
+        align-items: center;
+        gap: 0.2rem;
+    }
+
+    .rating-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(5px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .rating-modal.show {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .rating-modal-content {
+        background: var(--card-gradient);
+        border-radius: 20px;
+        padding: 2rem;
+        max-width: 400px;
+        width: 90%;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        transform: scale(0.8);
+        transition: all 0.3s ease;
+    }
+
+    .rating-modal.show .rating-modal-content {
+        transform: scale(1);
+    }
+
+    .rating-modal-title {
+        color: var(--text-color);
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin: 0 0 1rem 0;
+        text-align: center;
+    }
+
+    .rating-modal-game {
+        color: var(--accent-color);
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 0 0 2rem 0;
+        text-align: center;
+    }
+
+    .rating-selector {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin: 2rem 0;
+        flex-wrap: wrap;
+    }
+
+    .rating-option {
+        width: 40px;
+        height: 40px;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        color: var(--text-secondary);
+        font-weight: 700;
+        font-size: 1rem;
+    }
+
+    .rating-option:hover {
+        border-color: var(--accent-color);
+        background: rgba(0, 255, 136, 0.1);
+        color: var(--accent-color);
+        transform: scale(1.1);
+    }
+
+    .rating-option.selected {
+        border-color: var(--accent-color);
+        background: var(--accent-color);
+        color: var(--primary-dark);
+        transform: scale(1.1);
+    }
+
+    .rating-modal-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+
+    .rating-modal-btn {
+        padding: 0.75rem 2rem;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+    }
+
+    .rating-modal-btn.primary {
+        background: var(--accent-color);
+        color: var(--primary-dark);
+    }
+
+    .rating-modal-btn.primary:hover {
+        background: #00e67a;
+        transform: translateY(-2px);
+    }
+
+    .rating-modal-btn.secondary {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text-color);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .rating-modal-btn.secondary:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    .star-rating-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        margin: 2rem 0;
+    }
+
+    .star-rating {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 2.5rem;
+        cursor: pointer;
+    }
+
+    .star-rating i {
+        color: #444;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .star-rating i:hover {
+        transform: scale(1.1);
+    }
+
+    .star-rating i.active {
+        color: #ffd700;
+    }
+
+    .star-rating i.active.half {
+        background: linear-gradient(90deg, #ffd700 50%, #444 50%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .rating-text-display {
+        font-size: 1.1rem;
+        color: var(--text-color);
+        font-weight: 600;
+        text-align: center;
+        min-height: 1.5rem;
+    }
 </style>
 
 <script>
@@ -1877,6 +2118,11 @@ function renderUserGames(games) {
     games.forEach(obj => {
         const game = obj.game;
         const status = statusMap[obj.status] || {text: obj.status, class: ''};
+        const userRating = obj.user_raiting || 0;
+        
+        // Создаем компонент рейтинга
+        const ratingComponent = createRatingComponent(userRating, game.slug, game.name);
+        
         const div = document.createElement('div');
         div.className = 'user-game-card';
         div.setAttribute('data-game-id', game.id || game.slug);
@@ -1887,7 +2133,7 @@ function renderUserGames(games) {
                 <span class="user-game-status ${status.class}" onclick="openStatusModal('${game.slug}', '${game.name}', '${obj.status}')" title="Изменить статус игры">
                     ${status.text}
                 </span>
-                ${obj.user_raiting ? `<div class="user-game-rating"><i class="fas fa-star"></i> Оценка: ${obj.user_raiting}/10</div>` : '<div class="user-game-rating"><i class="fas fa-star-o"></i> Не оценена</div>'}
+                ${ratingComponent}
                 <button class="game-delete-btn" onclick="deleteGameFromCollection('${game.slug}')" title="Удалить из коллекции">
                     <i class="fas fa-trash"></i> Удалить
                 </button>
@@ -1973,6 +2219,9 @@ window.addEventListener('DOMContentLoaded', function() {
     
     // Загружаем рекомендации
     fetchRecommendations();
+    
+    // Инициализируем события для рейтинга
+    initializeRatingEvents();
     
     // Анимация счетчиков статистики
     animateCounters();
@@ -2800,5 +3049,147 @@ deleteGameFromCollection = function(slug) {
         fetchRecommendations();
     }, 1000);
 };
+
+// ===== ФУНКЦИИ ДЛЯ РЕЙТИНГА =====
+
+function createRatingComponent(currentRating, gameSlug, gameName) {
+    const starsHtml = createInteractiveStars(currentRating, gameSlug, gameName);
+    const ratingText = currentRating > 0 ? `${currentRating}/5` : 'Не оценена';
+    
+    return `
+        <div class="user-game-rating">
+            <div class="rating-display" data-game-slug="${gameSlug}" data-game-name="${gameName}">
+                <div class="rating-stars">
+                    ${starsHtml}
+                </div>
+                <span class="rating-text">${ratingText}</span>
+            </div>
+        </div>
+    `;
+}
+
+function createInteractiveStars(currentRating, gameSlug, gameName) {
+    let starsHtml = '';
+    
+    for (let i = 1; i <= 5; i++) {
+        const isActive = i <= currentRating;
+        const starClass = isActive ? 'star-interactive fas fa-star active' : 'star-interactive far fa-star';
+        
+        starsHtml += `<i class="${starClass}" data-rating="${i}" data-game-slug="${gameSlug}" data-game-name="${gameName}"></i>`;
+    }
+    
+    return starsHtml;
+}
+
+function initializeRatingEvents() {
+    // Простой обработчик кликов по звёздам
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('star-interactive')) {
+            const rating = parseInt(e.target.getAttribute('data-rating'));
+            const gameSlug = e.target.getAttribute('data-game-slug');
+            const gameName = e.target.getAttribute('data-game-name');
+            
+            updateGameRating(gameSlug, gameName, rating);
+        }
+    });
+}
+
+
+
+function updateGameRating(gameSlug, gameName, newRating) {
+    const token = getJWTToken();
+    
+    if (!token) {
+        showNotification('error', 'Ошибка авторизации', 'Необходимо перезайти в аккаунт');
+        return;
+    }
+    
+    // Отправляем запрос на API
+    fetch(`/api/user/game/${encodeURIComponent(gameSlug)}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+            raiting: newRating
+        })
+    })
+    .then(response => {
+        if (response.ok) {
+            // Обновляем локальные данные
+            updateGameRatingInList(gameSlug, newRating);
+            
+            const starText = newRating === 1 ? '1 звезда' : newRating <= 4 ? `${newRating} звезды` : `${newRating} звезд`;
+            showNotification('success', 'Оценка сохранена!', `"${gameName}" - ${starText}`);
+        } else {
+            throw new Error('Ошибка сервера');
+        }
+    })
+    .catch(error => {
+        console.error('Ошибка при изменении рейтинга:', error);
+        showNotification('error', 'Ошибка', 'Не удалось изменить оценку игры');
+    });
+}
+
+function updateGameRatingInList(gameSlug, newRating) {
+    // Обновляем данные в массивах
+    const updateRating = (gamesList) => {
+        const gameIndex = gamesList.findIndex(obj => obj.game.slug === gameSlug);
+        if (gameIndex !== -1) {
+            gamesList[gameIndex].user_raiting = newRating;
+        }
+    };
+    
+    updateRating(allUserGames);
+    updateRating(filteredUserGames);
+    
+    // Перерендериваем игры
+    renderUserGames(filteredUserGames);
+}
+
+// Убираем старые функции модального окна
+let currentRatingData = null;
+let selectedRating = 0;
+
+function openRatingModal() { /* Удалено */ }
+function closeRatingModal() { /* Удалено */ }
+function saveGameRating() { /* Удалено */ }
+
+// ===== ИНИЦИАЛИЗАЦИЯ ===== 
+document.addEventListener('DOMContentLoaded', function() {
+    // Инициализируем все компоненты страницы
+    initializePage();
+});
+
+// ===== МОДАЛЬНЫЕ ОКНА =====
+
+// Общие функции для модальных окон
+function openModal(modalId) {
+    document.getElementById(modalId).classList.add('show');
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.remove('show');
+}
+
+// Обработчики закрытия модальных окон
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('modal')) {
+        e.target.classList.remove('show');
+    }
+    if (e.target.classList.contains('close-btn')) {
+        e.target.closest('.modal').classList.remove('show');
+    }
+});
+
+// ESC для закрытия модальных окон
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        document.querySelectorAll('.modal.show').forEach(modal => {
+            modal.classList.remove('show');
+        });
+    }
+});
 </script>
 {% endblock %} 

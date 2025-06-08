@@ -10,6 +10,7 @@ from .models import Game, UserGame, Genre
 from GameTracker.settings import RAWG_API_TOKEN
 import requests
 from django.db.models import Count
+from django.shortcuts import get_object_or_404
 
 User = get_user_model()
 
@@ -36,10 +37,6 @@ class GameList(APIView):
             
             # === ВРЕМЕННЫЕ ФИЛЬТРЫ ===
             'dates': '2000-01-01', # Игры с 2010
-            
-            # === ИСКЛЮЧЕНИЯ ===
-            'exclude_additions': 'true',    # Исключить DLC
-            'exclude_parents': 'true',      # Исключить родительские записи
         }
         
         url = "https://api.rawg.io/api/games"
@@ -238,6 +235,23 @@ class UserGames(APIView):
         except Exception as e:
             return Response(status=500)
         
+
+class ChangeGameScore(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request, slug):
+        user = request.user
+        raiting = request.data.get('raiting')
+        game = get_object_or_404(
+            UserGame.objects.filter(user=user).prefetch_related('game'),
+            game__slug=slug,
+        )
+        
+        game.user_raiting = raiting
+        game.save()
+        
+        return Response(status=200)
 
 class RecomendedGames(APIView):
     authentication_classes = [JWTAuthentication]
