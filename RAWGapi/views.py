@@ -245,6 +245,7 @@ class RecomendedGames(APIView):
     
     def get(self, request):
         user = request.user
+        user_game_slugs = UserGame.objects.filter(user=user).values_list('game__slug', flat=True)
         favorite_genres = Genre.objects.filter(
             genres__usergame__user__id=user.id
         ).annotate(
@@ -258,14 +259,14 @@ class RecomendedGames(APIView):
             params = {
                 'key': RAWG_API_TOKEN,
                 'genres': genres_string,
-                'page_size': 10,
+                'page_size': UserGame.objects.filter(user=user).count() + 10,
                 'metacritic': '75,100',
                 'ordering': '-metacritic,-rating,-added',
             }
         else:
             params = {
                 'key': RAWG_API_TOKEN,
-                'page_size': 10,
+                'page_size': UserGame.objects.filter(user=user).count() + 10,
                 'metacritic': '75,100',
                 'ordering': '-metacritic,-rating,-added',
             }
@@ -275,11 +276,15 @@ class RecomendedGames(APIView):
         if response.status_code == 200:
             data = response.json()
             games = data.get('results', [])
-            sorted_games = sorted(games, key=lambda x: x.get('metacritic', 0) or 0, reverse=True)
-            serializer = GameListSerializer(data=sorted_games, many=True)
+
+            filtered_games = []
+            for game in games:
+                if game['slug'] not in user_game_slugs:
+                    filtered_games.append(game)
+
+            sorted_games = sorted(filtered_games, key=lambda game: game.get('metacritic', 0) or 0, reverse=True)            
+            serializer = GameListSerializer(data=sorted_games[:10], many=True)  
             if serializer.is_valid():
                 return Response(serializer.data, status=200)
-            else:
-                return Response(serializer.errors, status=400)
             
         return Response(status=400)
