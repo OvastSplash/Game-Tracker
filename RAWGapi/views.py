@@ -28,15 +28,15 @@ class GameList(APIView):
             'ordering': '-metacritic,-rating,-added',  # Приоритет Metacritic рейтингу
             
             # === ФИЛЬТРЫ КАЧЕСТВА ===
-            'metacritic': '65,100',        # Только игры с Metacritic 65+
-            'rating': '3.5,5',             # Только игры с рейтингом 3.5+
-            'reviews_count': '50,999999',   # Минимум 50 отзывов
+            # 'metacritic': '65,100',        # Только игры с Metacritic 65+
+            # 'rating': '3.5,5',             # Только игры с рейтингом 3.5+
+            # 'reviews_count': '50,999999',   # Минимум 50 отзывов
             
             # === ФИЛЬТРЫ ПЛАТФОРМ (исключаем мобильные) ===
             'platforms': '4,187,1,18,186,7', # PC, PS5, Xbox One, PS4, Xbox Series, Nintendo Switch
             
             # === ВРЕМЕННЫЕ ФИЛЬТРЫ ===
-            'dates': '2000-01-01', # Игры с 2010
+            # 'dates': '2000-01-01', # Игры с 2010
         }
         
         url = "https://api.rawg.io/api/games"
@@ -266,7 +266,7 @@ class RecomendedGames(APIView):
             count=Count('genres__usergame')
         ).order_by('-count')
         
-        top_genres = favorite_genres[:3]
+        top_genres = favorite_genres[:5]
 
         if top_genres:        
             genres_string = ",".join([genre.name.lower().replace(" ", "-") for genre in top_genres[:len(top_genres)]])
@@ -296,8 +296,8 @@ class RecomendedGames(APIView):
                 if game['slug'] not in user_game_slugs:
                     filtered_games.append(game)
 
-            sorted_games = sorted(filtered_games, key=lambda game: game.get('metacritic', 0) or 0, reverse=True)            
-            serializer = GameListSerializer(data=sorted_games[:10], many=True)  
+            # sorted_games = sorted(filtered_games, key=lambda game: game.get('metacritic', 0) or 0, reverse=True)            
+            serializer = GameListSerializer(data=filtered_games[:10], many=True)  
             if serializer.is_valid():
                 return Response(serializer.data, status=200)
             

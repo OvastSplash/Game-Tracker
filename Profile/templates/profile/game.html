@@ -355,6 +355,17 @@
         box-shadow: 0 5px 15px rgba(0, 255, 136, 0.2);
     }
     
+    .developer-link {
+        text-decoration: none;
+        color: inherit;
+        transition: all 0.3s ease;
+    }
+    
+    .developer-link:hover {
+        color: var(--accent-color);
+        text-shadow: 0 0 15px rgba(0, 255, 136, 0.5);
+    }
+    
     .platforms-list {
         display: flex;
         flex-direction: column;
@@ -1175,7 +1186,7 @@
     }
 </style>
 
-<button class="back-button" onclick="history.back()">
+<button class="back-button" onclick="window.location.href='{{ back_url }}'">
     <i class="fas fa-arrow-left"></i>
 </button>
 
@@ -1256,7 +1267,7 @@
                     Ваш статус
                 </h3>
                 <div class="status-badge {% if user_game.status == 'COMPLETED' %}status-completed{% elif user_game.status == 'PLAYING' %}status-playing{% else %}status-plan{% endif %}" 
-                     onclick="openStatusModal('{{ game.slug }}', '{{ game.name }}', '{{ user_game.status }}')" 
+                     onclick="openStatusModal('{{ game.slug }}', '{{ game.name|escapejs }}', '{{ user_game.status }}')" 
                      title="Нажмите для изменения статуса">
                     {{ user_game.get_status_display }}
                 </div>
@@ -1267,7 +1278,7 @@
                         <i class="fas fa-star"></i>
                         Ваша оценка
                     </div>
-                    <div class="rating-display-game" data-game-slug="{{ game.slug }}" data-game-name="{{ game.name }}">
+                    <div class="rating-display-game" data-game-slug="{{ game.slug }}" data-game-name="{{ game.name|escapejs }}">
                         <div class="rating-stars-game" id="gameRatingStars">
                             <!-- Звезды будут добавлены через JavaScript -->
                         </div>
@@ -1301,7 +1312,7 @@
                 </h3>
                 <div class="tags-list">
                     {% for developer in game.developers %}
-                    <span class="tag">{{ developer.name }}</span>
+                    <a href="{% url 'profile:developer' developer.name %}" class="tag developer-link">{{ developer.name }}</a>
                     {% endfor %}
                 </div>
             </div>

@@ -31,7 +31,6 @@ class UserManager(BaseUserManager):
 class CustomUser(AbstractBaseUser):
     login = models.CharField(verbose_name="Логин", max_length=20, unique=True)
     steam_id = models.CharField(verbose_name="ID Steam", max_length=17, unique=True, blank=True, null=True)
-    favorite_genre = models.CharField(verbose_name="Любимый жанр", max_length=50, blank=True, null=True)
     games = models.ManyToManyField('RAWGapi.Game', through='RAWGapi.UserGame', related_name="games", blank=True)
 
     is_active = models.BooleanField(default=True)

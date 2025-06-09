@@ -2115,6 +2115,28 @@ const statusMap = {
     'COMPLETED': {text: 'Завершено', class: 'completed'},
 };
 
+// Функция для поиска времени игры с case-insensitive сравнением
+function getGamePlaytime(gameName) {
+    if (!window.gamePlaytimes || !gameName) {
+        return null;
+    }
+    
+    // Сначала пробуем точное совпадение
+    if (window.gamePlaytimes[gameName]) {
+        return window.gamePlaytimes[gameName];
+    }
+    
+    // Если точного совпадения нет, ищем с игнорированием регистра
+    const lowerGameName = gameName.toLowerCase();
+    for (const [key, value] of Object.entries(window.gamePlaytimes)) {
+        if (key.toLowerCase() === lowerGameName) {
+            return value;
+        }
+    }
+    
+    return null;
+}
+
 function renderUserGames(games) {
     const container = document.getElementById('userGamesList');
     container.innerHTML = '';
@@ -2127,7 +2149,7 @@ function renderUserGames(games) {
         const game = obj.game;
         const status = statusMap[obj.status] || {text: obj.status || 'Неизвестно', class: 'plan'};
         const userRating = obj.user_raiting || 0;
-        const playtime = window.gamePlaytimes[game.name] || '—';
+        const playtime = getGamePlaytime(game.name) || '—';
 
         
         // Создаем компонент рейтинга
@@ -2143,7 +2165,7 @@ function renderUserGames(games) {
                 <h3 class="user-game-playtime">
                     <i class="fas fa-clock"></i> ${playtime}
                 </h3>
-                <span class="user-game-status ${status.class}" onclick="openStatusModal('${game.slug}', '${game.name}', '${obj.status}')" title="Изменить статус игры">
+                <span class="user-game-status ${status.class}" data-game-slug="${game.slug}" data-game-name="${game.name}" data-game-status="${obj.status}" title="Изменить статус игры">
                     ${status.text}
                 </span>
                 ${ratingComponent}
@@ -2160,6 +2182,16 @@ function renderUserGames(games) {
         title.addEventListener('click', function() {
             const slug = this.getAttribute('data-slug');
             navigateToGamePage(slug);
+        });
+    });
+    
+    // Добавляем обработчики кликов для статусов игр
+    container.querySelectorAll('.user-game-status').forEach(status => {
+        status.addEventListener('click', function() {
+            const gameSlug = this.getAttribute('data-game-slug');
+            const gameName = this.getAttribute('data-game-name');
+            const gameStatus = this.getAttribute('data-game-status');
+            openStatusModal(gameSlug, gameName, gameStatus);
         });
     });
 }
@@ -2778,9 +2810,11 @@ function updateGameCardStatus(gameSlug, newStatus) {
                 statusElement.classList.add(statusInfo.class);
                 statusElement.textContent = statusInfo.text;
                 
-                // Обновляем onclick с новым статусом
+                // Обновляем data-атрибуты с новым статусом
                 const gameName = titleElement.textContent;
-                statusElement.setAttribute('onclick', `openStatusModal('${gameSlug}', '${gameName}', '${newStatus}')`);
+                statusElement.setAttribute('data-game-slug', gameSlug);
+                statusElement.setAttribute('data-game-name', gameName);
+                statusElement.setAttribute('data-game-status', newStatus);
                 
                 // Добавляем визуальную анимацию обновления
                 statusElement.style.transform = 'scale(1.1)';

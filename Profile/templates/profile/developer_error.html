@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Ошибка - Разработчик не найден - GameTracker{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --primary-dark: #0a0a0a;
+        --secondary-dark: #1a1a1a;
+        --accent-color: #00ff88;
+        --accent-secondary: #ff6b35;
+        --accent-purple: #a855f7;
+        --text-color: #ffffff;
+        --text-secondary: #a3a3a3;
+        --text-muted: #6b7280;
+        --background-gradient: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0f1419 100%);
+        --card-gradient: linear-gradient(145deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.08) 100%);
+        --glow-green: 0 0 20px rgba(0, 255, 136, 0.3);
+    }
+    
+    body {
+        background: var(--background-gradient);
+        color: var(--text-color);
+        font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow-x: hidden;
+    }
+
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+            radial-gradient(circle at 20% 80%, rgba(0, 255, 136, 0.05) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(255, 107, 53, 0.05) 0%, transparent 50%),
+            radial-gradient(circle at 40% 40%, rgba(168, 85, 247, 0.05) 0%, transparent 50%);
+        pointer-events: none;
+        z-index: 0;
+    }
+    
+    .error-container {
+        max-width: 600px;
+        text-align: center;
+        padding: 3rem 2rem;
+        background: var(--card-gradient);
+        border-radius: 24px;
+        box-shadow: 
+            0 25px 50px rgba(0, 0, 0, 0.4),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(20px);
+        position: relative;
+        z-index: 1;
+        margin: 2rem;
+    }
+
+    .error-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, 
+            var(--accent-color) 0%, 
+            var(--accent-secondary) 50%, 
+            var(--accent-purple) 100%);
+        opacity: 0.8;
+        border-radius: 24px 24px 0 0;
+    }
+    
+    .error-icon {
+        font-size: 5rem;
+        color: var(--accent-secondary);
+        margin-bottom: 2rem;
+        filter: drop-shadow(0 0 20px rgba(255, 107, 53, 0.3));
+    }
+    
+    .error-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin: 0 0 1rem 0;
+        background: linear-gradient(45deg, var(--text-color), rgba(255, 255, 255, 0.8));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        line-height: 1.1;
+        letter-spacing: -0.02em;
+    }
+    
+    .error-message {
+        font-size: 1.2rem;
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+        line-height: 1.5;
+    }
+    
+    .developer-name {
+        color: var(--accent-color);
+        font-weight: 600;
+        text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+    }
+    
+    .back-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        background: var(--accent-color);
+        color: var(--primary-dark);
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 16px;
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        font-size: 1.1rem;
+        font-weight: 700;
+        text-decoration: none;
+        box-shadow: 
+            0 8px 25px rgba(0, 255, 136, 0.4),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+    
+    .back-button:hover {
+        background: #00e67a;
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 
+            0 12px 30px rgba(0, 255, 136, 0.5),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
+    
+    .back-button:active {
+        transform: translateY(-1px) scale(1.02);
+    }
+
+    @media (max-width: 768px) {
+        .error-container {
+            margin: 1rem;
+            padding: 2rem 1.5rem;
+        }
+        
+        .error-title {
+            font-size: 2rem;
+        }
+        
+        .error-message {
+            font-size: 1rem;
+        }
+        
+        .error-icon {
+            font-size: 4rem;
+        }
+    }
+</style>
+
+<div class="error-container">
+    <div class="error-icon">
+        <i class="fas fa-exclamation-triangle"></i>
+    </div>
+    
+    <h1 class="error-title">Разработчик не найден</h1>
+    
+    <p class="error-message">
+        К сожалению, не удалось найти информацию о разработчике 
+        <span class="developer-name">{{ developer_name }}</span> 
+        в нашей базе данных. Возможно, имя было введено неверно или разработчик отсутствует в RAWG API.
+    </p>
+    
+    <button class="back-button" onclick="window.location.href='{{ back_url }}'">
+        <i class="fas fa-arrow-left"></i>
+        Вернуться назад
+    </button>
+</div>
+
+{% endblock %} 

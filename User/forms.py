@@ -7,11 +7,10 @@ class UserRegistrationForm(forms.ModelForm):
     password = forms.CharField(label='Пароль', widget=forms.PasswordInput)
     check_password = forms.CharField(label='Повторите пароль', widget=forms.PasswordInput)
     steam_id = forms.CharField(label="ID Steam (необязательно)", required=False)
-    favorite_genre = forms.CharField(label="Любимый жанр (необязательно)", required=False)
     
     class Meta:
         model = CustomUser
-        fields = ['login', 'password', 'check_password', 'steam_id', 'favorite_genre']
+        fields = ['login', 'password', 'check_password', 'steam_id']
         
     def login_clean(self):
         login = self.cleaned_data.get("login")

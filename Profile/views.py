@@ -4,10 +4,11 @@ from django.utils.decorators import method_decorator
 from django.views.generic import View
 from django.shortcuts import get_object_or_404
 from RAWGapi.models import Game as GameModel, UserGame
+from RAWGapi.serializers import GameListSerializer
 from SteamAPI.views import AuthSteamID
 from RAWGapi.models import UserGame
 from RAWGapi.object_to_json_serializers import UserGameSerializer
-from GameTracker.settings import STEAM_API_TOKEN
+from GameTracker.settings import STEAM_API_TOKEN, RAWG_API_TOKEN
 import json
 import requests
 # Create your views here.
@@ -68,7 +69,7 @@ class Profile(View):
         if steamGames and 'response' in steamGames and 'games' in steamGames['response']:
             for game in steamGames['response']['games']:
                 name = game['name']
-                if name in userGames:
+                if name.lower() in (value.lower() for value in userGames):
                     time_in_minutes = game['playtime_forever']
                     hours_decimal = round(time_in_minutes / 60, 1)
                     hours_total += hours_decimal
@@ -124,10 +125,14 @@ class Game(View):
         # Проверяем, есть ли игра в коллекции пользователя
         user_game = self._check_user_game(request.user, game_data)
         
+        # Для страницы игры всегда возвращаемся на профиль
+        back_url = '/profile/'
+        
         return render(request, 'profile/game.html', {
             'game': game_data,
             'user_game': user_game,
-            'access_token': access_token
+            'access_token': access_token,
+            'back_url': back_url
         })
     
     def _get_access_token(self, request):
@@ -231,3 +236,60 @@ class Game(View):
         game = get_object_or_404(UserGame.objects.filter(user=request.user).prefetch_related('game'), game__slug=GameSlug)
         game.delete()
         
+# Показывает игры разработчика
+@method_decorator(login_required, name="dispatch")
+class Developer(View):
+    def get(self, request, developer_name):
+        developer_id_params = {
+            'key': RAWG_API_TOKEN,
+            'search': developer_name,
+        }
+        developer_id_response = requests.get("https://api.rawg.io/api/developers", params=developer_id_params)
+        developer_id = developer_id_response.json().get('results')[0].get('id')
+        
+        if developer_id:
+            developer_games_params = {
+                'key': RAWG_API_TOKEN,
+                'developers': developer_id,
+                'exclude_additions': True,
+            }
+            developer_games_response = requests.get("https://api.rawg.io/api/games", params=developer_games_params)
+            developer_games = developer_games_response.json().get('results')
+            
+            unwanted_keywords = [
+                'companion', 'launcher', 'soundtrack', 'demo',
+                'pack', 'dlc', 'tool', 'editor', 'test', 'benchmark',
+                'trailer', 'mod', 'server', 'redeem', 'expansion', "collection",
+            ]
+            sorted_developer_games = [game for game in developer_games if not any(keyword in game['name'].lower() or keyword in game['slug'].lower() for keyword in unwanted_keywords)]
+            
+            sorted_developer_games = sorted(sorted_developer_games, key=lambda game: game.get('metacritic', 0) or 0, reverse=True)
+            serializer = GameListSerializer(data=sorted_developer_games, many=True)
+            
+            if serializer.is_valid():
+                # Определяем предыдущую страницу для кнопки "Назад"
+                referer = request.META.get('HTTP_REFERER', '')
+                back_url = '/profile/'  # По умолчанию на профиль
+                
+                # Если пришли с игры или профиля
+                if '/profile/' in referer:
+                    back_url = referer
+                
+                return render(request, 'profile/developer.html', {
+                    'developer_games': serializer.data,
+                    'developer_name': developer_name,
+                    'back_url': back_url
+                })
+            
+        # Определяем предыдущую страницу для кнопки "Назад"
+        referer = request.META.get('HTTP_REFERER', '')
+        back_url = '/profile/'  # По умолчанию на профиль
+        
+        # Если пришли с игры или профиля
+        if '/profile/' in referer:
+            back_url = referer
+            
+        return render(request, 'profile/developer_error.html', {
+            'developer_name': developer_name,
+            'back_url': back_url
+        })
