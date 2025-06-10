@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-i3#d1gjih(m%kr*6qtm3&0#(5i)2m8h9&4q*%(@57xlm6l#oie'
+SECRET_KEY = os.getenv('SECRET_KEY', 'default-secret-key-change-in-production')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
@@ -144,9 +144,9 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'K8dj3*mN9$pL#vF5@qW2&hX4%tY7!zC1')
-RAWG_API_TOKEN = os.getenv('RAWG_API_TOKEN', "d9a8b90eeff74d07905834091352b8c7")
-STEAM_API_TOKEN = os.getenv('STEAM_API_TOKEN', "BE55382C90237E602B9743D97F7615D3")
+JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'default-jwt-key-change-in-production')
+RAWG_API_TOKEN = os.getenv('RAWG_API_TOKEN', "your-rawg-api-token")
+STEAM_API_TOKEN = os.getenv('STEAM_API_TOKEN', "your-steam-api-token")
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # Время жизни access токена - 1 час
@@ -195,3 +195,14 @@ if not DEBUG:
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     X_FRAME_OPTIONS = 'DENY'
+
+# Импортируем локальные настройки (если файл существует)
+try:
+    from .settings_local import *
+    # Если есть локальная база данных, используем её для разработки
+    if 'DATABASES_LOCAL' in locals():
+        if DEBUG:
+            DATABASES = DATABASES_LOCAL
+except ImportError:
+    # Файл settings_local.py не найден - используем переменные окружения
+    pass

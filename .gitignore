@@ -9,12 +9,14 @@ db.sqlite3-journal
 media/
 staticfiles/
 
-# Environment variables
+# Environment variables and sensitive settings
 .env
 .venv
 venv/
 ENV/
 env/
+settings_local.py
+**/settings_local.py
 
 # IDE
 .vscode/
