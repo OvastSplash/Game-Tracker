@@ -31,13 +31,13 @@ class Developer(models.Model):
 class Game(models.Model):
     name = models.CharField(max_length=255, unique=True, null=False)
     slug = models.SlugField(unique=True, null=True)
-    platforms = models.ManyToManyField(Platform, related_name="platforms")
-    stores = models.ManyToManyField(Store, related_name="stores")
-    genres = models.ManyToManyField(Genre, related_name="genres")
+    platforms = models.ManyToManyField(Platform, related_name="games")
+    stores = models.ManyToManyField(Store, related_name="games")
+    genres = models.ManyToManyField(Genre, related_name="games")
     description = models.TextField(null=True)
     release_date = models.CharField(null=True)
     logo = models.URLField(max_length=255, null=True)
-    developers = models.ManyToManyField(Developer, related_name="developers", blank=True)
+    developers = models.ManyToManyField(Developer, related_name="games", blank=True)
     
     # rating is a integer between 0 and 100
     metacritic = models.IntegerField(null=True)

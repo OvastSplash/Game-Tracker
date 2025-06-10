@@ -2,25 +2,16 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from GameTracker.settings import STEAM_API_TOKEN
-import requests
+from .services import SteamService
 
-# 228PUP
 class AuthSteamID(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     
     def get(self, request, steam_id):
-        response = requests.get(f"https://api.steampowered.com/ISteamUser/ResolveVanityURL/v1/?key={STEAM_API_TOKEN}&vanityurl={steam_id}")
         user = request.user
+        steam_id, success = SteamService.resolve_and_update_steam_id(user, steam_id)
+        if success:
+            return Response({"steam_id": steam_id}, status=200)
         
-        if len(str(user.steam_id)) == 17:
-            return Response(response.json(), status=200)
-        
-        if response.status_code == 200:
-            steam_id = response.json()["response"]["steamid"]
-            user.steam_id = steam_id
-            user.save()
-            return Response(response.json(), status=200)
-        
-        return Response(response.json(), status=400)
+        return Response({"error": "Failed to resolve vanity URL"}, status=400)
