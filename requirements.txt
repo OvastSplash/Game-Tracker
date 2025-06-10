@@ -1,0 +1,26 @@
+# Django и основные зависимости
+Django==5.2.1
+djangorestframework==3.16.0
+djangorestframework_simplejwt==5.5.0
+
+# Для работы с HTTP запросами (RAWG API, Steam API)
+requests==2.32.3
+
+# Для работы с изображениями
+Pillow==11.0.0
+
+# Для работы с JSON Web Tokens
+PyJWT==2.9.0
+
+# Базовые зависимости Django
+asgiref==3.8.1
+sqlparse==0.5.3
+
+# Для работы с датами
+python-dateutil==2.9.0.post0
+pytz==2024.2
+
+# HTTP библиотеки
+certifi==2024.12.14
+charset-normalizer==3.4.1
+idna==3.10 
