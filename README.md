@@ -52,18 +52,34 @@ python manage.py createsuperuser
 
 ## 🔧 Конфигурация
 
-В файле `GameTracker/settings.py` настройте:
+### Локальная разработка
 
-### API Ключи
+1. **Скопируйте файл настроек:**
+```bash
+cp GameTracker/settings_local.py.example GameTracker/settings_local.py
+```
+
+2. **Отредактируйте `GameTracker/settings_local.py`:**
 ```python
+# Ваши API ключи
+SECRET_KEY = 'your-django-secret-key'
+JWT_SECRET_KEY = 'your-jwt-secret-key'
 RAWG_API_TOKEN = "your_rawg_api_key"
 STEAM_API_TOKEN = "your_steam_api_key"
+
+# Настройки разработки
+DEBUG = True
 ```
 
-### Допустимые хосты
-```python
-ALLOWED_HOSTS = ['your-domain.com', 'localhost', '127.0.0.1']
-```
+### Production (Render.com)
+
+Установите переменные окружения:
+- `SECRET_KEY` - Django секретный ключ
+- `JWT_SECRET_KEY` - JWT секретный ключ
+- `RAWG_API_TOKEN` - Ваш RAWG API ключ
+- `STEAM_API_TOKEN` - Ваш Steam API ключ
+- `DEBUG=False` - Отключить режим отладки
+- `DATABASE_URL` - URL базы данных PostgreSQL
 
 ## 🚀 Запуск
 
