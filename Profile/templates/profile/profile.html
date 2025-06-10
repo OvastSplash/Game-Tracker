@@ -2614,8 +2614,9 @@ function deleteGameFromCollection(slug) {
         },
         body: JSON.stringify({slug: slug})
     })
-    .then(response => {
-        if (response.status === 204) {
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
             showNotification('success', 'Успешно!', 'Игра удалена из коллекции');
             
             // Обновляем счетчики при удалении игры
@@ -2639,10 +2640,8 @@ function deleteGameFromCollection(slug) {
                     }, 400);
                 }
             });
-        } else if (response.status === 404) {
-            showNotification('error', 'Ошибка', 'Игра не найдена в вашей коллекции');
         } else {
-            showNotification('error', 'Ошибка', 'Не удалось удалить игру из коллекции');
+            showNotification('error', 'Ошибка', data.message || 'Не удалось удалить игру из коллекции');
         }
     })
     .catch(error => {

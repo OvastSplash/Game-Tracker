@@ -137,6 +137,7 @@ class UserGames(APIView):
     def post(self, request):
         slug = request.data.get('slug')
         success, message = GameManagementService.remove_game_from_user_collection(request.user, slug)
+        print(success, message)
         return Response({
             "status": "error" if not success else "success",
             "message": message,
