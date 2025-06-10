@@ -23,5 +23,10 @@ pytz==2024.2
 # HTTP библиотеки
 certifi==2024.12.14
 charset-normalizer==3.4.1
-idna==3.10 
-gunicorn
+idna==3.10
+
+# Production server
+gunicorn==23.0.0
+whitenoise==6.8.2
+dj-database-url==2.3.0
+psycopg2-binary==2.9.10
