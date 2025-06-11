@@ -12,8 +12,6 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
-import os
-import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,11 +24,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-i3#d1gjih(m%kr*6qtm3&0#(5i)2m8h9&4q*%(@57xlm6l#oie'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
+DEBUG = True
 
-ALLOWED_HOSTS = ['194.44.97.108', '127.0.0.1', 'localhost', '.onrender.com']
-if not DEBUG:
-    ALLOWED_HOSTS.append('*')  # В production добавляем все хосты для Render
+ALLOWED_HOSTS = ['194.44.97.108', '127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -53,7 +49,6 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Для статических файлов на Render
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -87,10 +82,10 @@ WSGI_APPLICATION = 'GameTracker.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': dj_database_url.config(
-        default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
-        conn_max_age=600
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
 
 
@@ -128,25 +123,19 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
-
-# Production static files settings
-STATIC_ROOT = BASE_DIR / 'staticfiles'
-
-# WhiteNoise settings for production
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'K8dj3*mN9$pL#vF5@qW2&hX4%tY7!zC1')
-RAWG_API_TOKEN = os.getenv('RAWG_API_TOKEN', "d9a8b90eeff74d07905834091352b8c7")
-STEAM_API_TOKEN = os.getenv('STEAM_API_TOKEN', "BE55382C90237E602B9743D97F7615D3")
+JWT_SECRET_KEY = 'K8dj3*mN9$pL#vF5@qW2&hX4%tY7!zC1'
+RAWG_API_TOKEN = "d9a8b90eeff74d07905834091352b8c7"
+STEAM_API_TOKEN = "BE55382C90237E602B9743D97F7615D3"
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # Время жизни access токена - 1 час
@@ -182,16 +171,3 @@ AUTHENTICATION_BACKENDS = [
 # Login URL
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'  # URL для перенаправления после успешного входа
-
-# Production security settings
-if not DEBUG:
-    # Security settings for HTTPS
-    SECURE_BROWSER_XSS_FILTER = True
-    SECURE_CONTENT_TYPE_NOSNIFF = True
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_SECONDS = 31536000
-    SECURE_REDIRECT_EXEMPT = []
-    SECURE_SSL_REDIRECT = True
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
-    X_FRAME_OPTIONS = 'DENY'
