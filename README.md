@@ -73,13 +73,19 @@ DEBUG = True
 
 ### Production (Render.com)
 
-Установите переменные окружения:
+📋 **Подробные инструкции по деплою см. в [RENDER_DEPLOY.md](RENDER_DEPLOY.md)**
+
+Установите переменные окружения в Render Dashboard:
 - `SECRET_KEY` - Django секретный ключ
 - `JWT_SECRET_KEY` - JWT секретный ключ
 - `RAWG_API_TOKEN` - Ваш RAWG API ключ
 - `STEAM_API_TOKEN` - Ваш Steam API ключ
 - `DEBUG=False` - Отключить режим отладки
-- `DATABASE_URL` - URL базы данных PostgreSQL
+- `DATABASE_URL` - URL базы данных PostgreSQL (создается автоматически)
+
+**Build Command:** `pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate`
+
+**Start Command:** `gunicorn GameTracker.wsgi:application`
 
 ## 🚀 Запуск
 

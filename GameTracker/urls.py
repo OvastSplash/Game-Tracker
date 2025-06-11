@@ -17,6 +17,19 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from django.conf import settings
+from django.conf.urls.static import static
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
+# Health check endpoint for Render
+@csrf_exempt
+def health_check(request):
+    """Simple health check endpoint for monitoring"""
+    return JsonResponse({
+        'status': 'healthy',
+        'message': 'GameTracker is running'
+    })
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -28,4 +41,9 @@ urlpatterns = [
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/steam/', include('SteamAPI.urls'), name='steam_api'),
+    path('health/', health_check, name='health_check'),  # Health check endpoint
 ]
+
+# Serve static files in development
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
